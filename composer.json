@@ -1,0 +1,25 @@
+{
+    "name": "kevingorman1000/nexusphp",
+    "description": "Nexus is a powerful and versatile PHP framework designed to streamline the development process and empower developers to build robust web applications with ease. With its intuitive and elegant architecture, Nexus offers a comprehensive set of tools and features that accelerate development, enhance code maintainability, and promote scalability.",
+    "version": "0.0.1",
+    "type": "project",
+    "license": "Apache License 2.0",
+    "autoload": {
+        "psr-4": {
+            "Nxp\\Core\\": "src/core/",
+            "Nxp\\Lib\\": "lib/",
+            "Nxp\\Core\\Plugin\\": "src/plugins/",
+            "Nxp\\Controllers\\" : "app/controllers/",
+            "Nxp\\Middlewares\\" : "app/middlewares/"
+        }
+    },
+    "authors": [
+        {
+            "name": "kevingorman1000",
+            "email": "kgorman436@gmail.com"
+        }
+    ],
+    "require": {
+        "defuse/php-encryption": "^2.4"
+    }
+}
