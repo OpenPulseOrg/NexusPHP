@@ -7,9 +7,9 @@
  * All routes are automatically grouped based on your configureation settings in config/app.php.
  */
 
-use Nxp\Core\Utils\Navigation\Router\RouteCollection;
+use Nxp\Core\Utils\Navigation\Router\Collection;
 
-RouteCollection::group('/api', [
+Collection::group('/api', [
     ["GET", "/", '\Nxp\Controllers\Welcome\ApiWelcomeController@index'],
     ['GET', '/hello', '\Nxp\Controllers\Welcome\ApiWelcomeController@hello'],
     ['GET', '/world', '\Nxp\Controllers\Welcome\ApiWelcomeController@world'],

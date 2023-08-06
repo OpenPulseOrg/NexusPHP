@@ -10,6 +10,7 @@
             "Nxp\\Lib\\": "lib/",
             "Nxp\\Core\\Plugin\\": "src/plugins/",
             "Nxp\\Controllers\\" : "app/controllers/",
+            "Nxp\\Models\\" : "app/models",
             "Nxp\\Middlewares\\" : "app/middlewares/"
         }
     },

@@ -5,11 +5,12 @@ namespace Nxp\Core\Security\Auth;
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Security\Cleaning\Sanitizer;
 use Nxp\Core\Utils\Service\Container;
-use Nxp\Core\Utils\Session\Session;
+use Nxp\Core\Utils\Session\Manager;
 
 class Authorization
 {
     private $query;
+    private $session;
     private $usersTable = 'users';
 
     /**
@@ -17,6 +18,7 @@ class Authorization
      */
     public function __construct(Container $container)
     {
+        $this->session = Manager::getInstance();
         $this->query = new Query($container);
     }
 
@@ -69,7 +71,7 @@ class Authorization
      */
     public function getCurrentUser()
     {
-        $user = Session::get('user');
+        $user = $this->session->get('user');
         // Validate and sanitize user data before returning it to prevent security issues.
         return $this->validateUserData($user);
     }
@@ -102,7 +104,7 @@ class Authorization
      */
     public function setCurrentUser($userData)
     {
-        Session::set('user', $userData);
+        $this->session->set('user', $userData);
     }
 
     /**
@@ -110,7 +112,7 @@ class Authorization
      */
     public function clearCurrentUser()
     {
-        Session::delete('user');
+        $this->session->delete('user');
     }
 
     /**
@@ -127,9 +129,9 @@ class Authorization
 
         if ($result) {
             // Update successful, update the user data in the session
-            $user = Session::get('user');
+            $user = $this->session->get('user');
             $user['permissions'] = $permissions;
-            Session::set('user', $user);
+            $this->session->set('user', $user);
         }
 
         return $result;
@@ -157,7 +159,7 @@ class Authorization
         if ($result) {
             // Update successful, update the user data in the session
             $user['permissions'] = $updatedPermissions;
-            Session::set('user', $user);
+            $this->session->set('user', $user);
         }
 
         return $result;

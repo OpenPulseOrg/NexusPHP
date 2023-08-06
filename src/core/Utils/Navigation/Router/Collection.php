@@ -4,7 +4,7 @@ namespace Nxp\Core\Utils\Navigation\Router;
 
 use Exception;
 
-class RouteCollection
+class Collection
 {
     private static $routes = array();
     private static $namedRoutes = array();

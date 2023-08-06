@@ -6,13 +6,14 @@ use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Database\Factories\Table;
 use Nxp\Core\Database\Factories\Transaction;
 use Nxp\Core\Utils\Service\Container;
-use Nxp\Core\Utils\Session\Session;
+use Nxp\Core\Utils\Session\Manager;
 
 class Authentication
 {
     private $query;
     private $table;
     private $transaction;
+    private $session;
     private $usersTable = 'users';
 
     /**
@@ -23,6 +24,7 @@ class Authentication
         $this->query = new Query($container);
         $this->table = new Table($container);
         $this->transaction = new Transaction($container);
+        $this->session = Manager::getInstance();
     }
 
     public function createUsersTableIfNotExists()
@@ -99,7 +101,7 @@ class Authentication
 
         if ($user && $user['password'] === $password) {
             // Authentication successful
-            Session::set('user', $user); // Set the user data in the session
+            $this->session->set('user', $user); // Set the user data in the session
             return $user;
         }
 
@@ -164,7 +166,7 @@ class Authentication
             }
 
             // Registration successful, set the user data in the session
-            Session::set('user', $userDataToInsert);
+            $this->session->set('user', $userDataToInsert);
         } else {
             // Registration failed, handle errors appropriately
         }
@@ -197,7 +199,7 @@ class Authentication
 
         if ($result) {
             // Password change successful, update the user data in the session
-            Session::set('user', $user);
+            $this->session->set('user', $user);
         }
 
         return $result;
@@ -217,9 +219,9 @@ class Authentication
 
         if ($result) {
             // Update successful, update the user data in the session
-            $user = Session::get('user');
+            $user = $this->session->get('user');
             $user['roles'] = $roles;
-            Session::set('user', $user);
+            $this->session->set('user', $user);
         }
 
         return $result;
@@ -250,7 +252,7 @@ class Authentication
      */
     public function isLoggedIn()
     {
-        return Session::get('user') !== null;
+        return $this->session->get('user') !== null;
     }
 
     /**
@@ -258,7 +260,7 @@ class Authentication
      */
     public function logout()
     {
-        Session::destroy();
+        $this->session->destroy();
     }
 
 

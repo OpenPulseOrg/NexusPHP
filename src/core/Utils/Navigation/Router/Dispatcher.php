@@ -6,24 +6,28 @@ use Nxp\Core\Security\Detection\SQLDetection;
 use Nxp\Core\Utils\HTTP\Request;
 use Nxp\Core\Utils\HTTP\Response;
 
-class RouteDispatcher
+class Dispatcher
 {
     public static function dispatch()
     {
         $request = new Request();
         $response = new Response();
 
-        // Check URL for possible SQL Detection
-        $SQLDetection = new SQLDetection();
-
-        $SQLDetection->detectSqlInjectionInURL();
-
         $method = $request->getMethod();
         $uri = $request->getUri();
 
+         // Check for SQL injection attempts in the URL
+         $sqlDetector = new SQLDetection();
+         if ($sqlDetector->detectSqlInjectionInURL()) {
+             $response->setStatusCode(400); 
+             $response->setBody("<h1>Potential malicious request detected</h1>");
+             $response->send();
+             return;
+         }
+
         $isApiCall = substr($uri, 0, 5) === '/api/';
 
-        $routes = RouteCollection::getRoutes();
+        $routes = Collection::getRoutes();
 
         foreach ($routes as $route) {
             $pattern = "~^" . $route["pattern"] . "$~";

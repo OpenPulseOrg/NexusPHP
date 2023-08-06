@@ -2,125 +2,37 @@
 
 namespace Nxp\Core\Templating;
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Templating\Parser\Parser;
 
-/**
- * Class TemplateEngine
- *
- * @package Nxp\Core\Templating
- */
 class TemplateEngine
 {
-    /**
-     * @var string The directory path where templates are stored.
-     */
-    protected $templateDir;
+    private $templatePath;
+    private $variables;
+    private $parser;
 
-    /**
-     * TemplateEngine constructor.
-     *
-     * @param string $templateDir The directory path where templates are stored.
-     */
-    public function __construct($templateDir)
+    public function __construct($templatePath)
     {
-        $this->templateDir = $templateDir;
+        $this->templatePath = $templatePath;
+        $this->variables = [];
+        $this->parser = new Parser($this->variables); // Initialize the parser
     }
 
-    /**
-     * Renders a template with the given variables.
-     *
-     * @param string $templateName The name of the template file to render.
-     * @param array $vars An associative array of variables to be passed to the template.
-     *
-     * @return string The rendered template content.
-     * @throws Exception If the template file is not found.
-     */
-    public function render($templateName, $vars = [])
+    public function set($key, $value)
     {
-        $predefinedVars = [
-            "title" => ConfigHandler::get("app", "CORE_TITLE")
-        ];
-
-        $allVars = array_merge($predefinedVars, $vars);
-
-        $templatePath = $this->getTemplatePath($templateName);
-
-        if (!file_exists($templatePath)) {
-            throw new \Exception('Template not found: ' . $templateName);
-        }
-
-        // Extract the variables to a local namespace
-        extract($allVars);
-
-        // Start output buffering
-        ob_start();
-
-        // Include the template file
-        include $templatePath;
-
-        // Get the contents of the buffer
-        $content = ob_get_clean();
-
-        // Replace conditional and loop blocks with their respective content
-        $content = $this->processBlocks($content, $vars);
-
-        // Replace placeholders with their corresponding values
-        foreach ($vars as $key => $value) {
-            $content = str_replace('{{ ' . $key . ' }}', $value, $content);
-        }
-
-        return $content;
+        $this->variables[$key] = $value;
     }
 
-    /**
-     * Processes conditional, include, escape, and loop blocks within the template content.
-     *
-     * @param string $content The template content.
-     * @param array $vars An associative array of variables to be used within the template.
-     *
-     * @return string The processed template content.
-     */
-    protected function processBlocks($content, $vars)
+    public function render()
     {
-        // Replace if blocks
-        $content = preg_replace_callback('/{{#if (.*?)}}(.*?){{\/if}}/s', function ($matches) use ($vars) {
-            return !empty($vars[$matches[1]]) ? $matches[2] : '';
-        }, $content);
+        // Update the parser's variables before parsing
+        $this->parser->setVariables($this->variables);
 
-        // Replace include statements
-        $content = preg_replace_callback('/{{include \'(.*?)\'}}/', function ($matches) use ($vars) {
-            $includeFileName = $matches[1];
-            return $this->render($includeFileName, $vars);
-        }, $content);
-
-        // Escape variables
-        $content = preg_replace_callback('/{{escape (.*?)}}/', function ($matches) use ($vars) {
-            return htmlspecialchars($vars[$matches[1]]);
-        }, $content);
-
-        // Replace foreach blocks
-        $content = preg_replace_callback('/{{#foreach (.*?) as (.*?)}}(.*?){{\/foreach}}/s', function ($matches) use ($vars) {
-            $output = '';
-            if (isset($vars[$matches[1]]) && is_array($vars[$matches[1]])) {
-                foreach ($vars[$matches[1]] as $item) {
-                    $output .= str_replace('{{ ' . $matches[2] . ' }}', $item, $matches[3]);
-                }
-            }
-            return $output;
-        }, $content);
-
-        return $content;
+        $templateContent = file_get_contents($this->templatePath);
+        return $this->parser->parse($templateContent); // Delegate parsing to the parser class
     }
 
-    /**
-     * Gets the full file path of the given template name.
-     *
-     * @param string $templateName The name of the template file.
-     *
-     * @return string The full file path of the template.
-     */
-    protected function getTemplatePath($templateName)
+    public function getParser()
     {
-        return $this->templateDir . '/' . $templateName . '.php';
+        return $this->parser;
     }
 }

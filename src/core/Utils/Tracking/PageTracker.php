@@ -2,75 +2,54 @@
 
 namespace Nxp\Core\Utils\Tracking;
 
-use Nxp\Core\Utils\Session\Session;
+use Nxp\Core\Utils\Session\Manager;
 
 /**
- * PageTracker class for tracking current and previous page URLs.
- *
- * @package Nxp\Core\Utils\Tracking
+ * @return PageTracker
  */
 class PageTracker
 {
-    private static $current_page = '';
-    private static $previous_page = '';
+    private $current_page = '';
+    private $previous_page = '';
+    private $session;
 
-    /**
-     * Tracks the current and previous page by storing them in the session.
-     *
-     * @return void
-     */
-    public static function track()
+    public function __construct()
     {
-        if (Session::get('current_page')) {
-            self::$previous_page = Session::get('current_page');
+        $this->session = Manager::getInstance();
+    }
+
+    public function track()
+    {
+        if ($this->session->get('current_page')) {
+            $this->previous_page = $this->session->get('current_page');
         }
-        self::$current_page = $_SERVER['REQUEST_URI'];
+        $this->current_page = $_SERVER['REQUEST_URI'];
 
-        Session::set('current_page', self::$current_page);
-        Session::set('previous_page', self::$previous_page);
+        $this->session->set('current_page', $this->current_page);
+        $this->session->set('previous_page', $this->previous_page);
     }
 
-    /**
-     * Gets the current page that was tracked.
-     *
-     * @return string The current page URL.
-     */
-    public static function getCurrentPage()
+    public function getCurrentPage()
     {
-        self::$current_page = Session::get('current_page');
-        return self::$current_page;
+        $this->current_page = $this->session->get('current_page');
+        return $this->current_page;
     }
 
-    /**
-     * Gets the previous page that was tracked.
-     *
-     * @return string The previous page URL.
-     */
-    public static function getPreviousPage()
+    public function getPreviousPage()
     {
-        self::$previous_page = Session::get('previous_page');
-        return self::$previous_page;
+        $this->previous_page = $this->session->get('previous_page');
+        return $this->previous_page;
     }
 
-    /**
-     * Clears the current and previous page values from the session.
-     *
-     * @return void
-     */
-    public static function clear()
+    public function clear()
     {
-        self::$current_page = '';
-        self::$previous_page = '';
-        Session::delete('current_page');
-        Session::delete('previous_page');
+        $this->current_page = '';
+        $this->previous_page = '';
+        $this->session->delete('current_page');
+        $this->session->delete('previous_page');
     }
 
-    /**
-     * Returns the current page name from the URL.
-     *
-     * @return string
-     */
-    public static function getPageName()
+    public function getPageName()
     {
         $directoryURI = $_SERVER['REQUEST_URI'];
         $path = parse_url($directoryURI, PHP_URL_PATH);

@@ -11,7 +11,11 @@ class Container
     private $services = [];
     private $instances = [];
     private $tags = [];
+    private $aliases = [];
     private $lazyServices = [];
+    private $parameters = [];
+    private $protected = [];
+    private $middlewares = [];
 
     public static function getInstance()
     {
@@ -21,33 +25,101 @@ class Container
         return self::$instance;
     }
 
-    public function set(string $name, callable $resolver, bool $singleton = false)
+    public function setParameter(string $name, $value)
     {
+        $this->parameters[$name] = $value;
+    }
+
+    public function getParameter(string $name)
+    {
+        if (!isset($this->parameters[$name])) {
+            throw new Exception("Parameter not found: {$name}");
+        }
+        return $this->parameters[$name];
+    }
+
+    public function set(string $name, callable $resolver, bool $singleton = false, bool $protected = false)
+    {
+        if (isset($this->protected[$name])) {
+            throw new Exception("Service {$name} is protected and cannot be overwritten.");
+        }
         $this->services[$name] = [
+            'resolver' => $resolver,
+            'singleton' => $singleton,
+        ];
+        if ($protected) {
+            $this->protected[$name] = true;
+        }
+    }
+
+    public function alias(string $alias, string $service)
+    {
+        $this->aliases[$alias] = $service;
+    }
+
+    public function factory(string $name, callable $resolver)
+    {
+        $this->set($name, $resolver, false);
+    }
+
+    public function setLazy(string $name, callable $resolver, bool $singleton = false)
+    {
+        $this->lazyServices[$name] = [
             'resolver' => $resolver,
             'singleton' => $singleton,
         ];
     }
 
-    public function get(string $name)
+    public function has(string $name)
     {
-        if (!isset($this->services[$name])) {
-            throw new Exception("Service not found: {$name}");
-        }
+        return isset($this->services[$name]) || isset($this->aliases[$name]) || isset($this->lazyServices[$name]);
+    }
 
-        $service = $this->services[$name]['resolver'];
+    public function clear(string $name)
+    {
+        unset($this->instances[$name]);
+    }
 
-        if ($this->services[$name]['singleton'] && isset($this->instances[$name])) {
+    public function addMiddleware(callable $middleware)
+    {
+        $this->middlewares[] = $middleware;
+    }
+
+    private function resolve($name, $serviceData, $isLazy = false)
+    {
+        if ($serviceData['singleton'] && isset($this->instances[$name])) {
             return $this->instances[$name];
         }
 
+        $service = $serviceData['resolver'];
         $resolvedService = $service($this);
-        if ($this->services[$name]['singleton']) {
+
+        if ($serviceData['singleton']) {
             $this->instances[$name] = $resolvedService;
+        }
+
+        // Apply middlewares
+        foreach ($this->middlewares as $middleware) {
+            $resolvedService = $middleware($resolvedService, $name, $isLazy);
         }
 
         return $resolvedService;
     }
+
+    public function get(string $name)
+    {
+        if (isset($this->aliases[$name])) {
+            $name = $this->aliases[$name];
+        }
+
+        if (!isset($this->services[$name])) {
+            throw new Exception("Service not found: {$name}");
+        }
+
+        return $this->resolve($name, $this->services[$name]);
+    }
+
+
 
     public function addTag(string $tagName, string $serviceName)
     {
@@ -65,13 +137,7 @@ class Container
         return $taggedServices;
     }
 
-    public function setLazy(string $name, callable $resolver, bool $singleton = false)
-    {
-        $this->lazyServices[$name] = [
-            'resolver' => $resolver,
-            'singleton' => $singleton,
-        ];
-    }
+   
 
     public function getLazy(string $name)
     {

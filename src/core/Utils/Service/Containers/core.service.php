@@ -3,6 +3,7 @@
 use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Security\Monitoring\SystemChecks;
 use Nxp\Core\Security\Server\Info;
+use Nxp\Core\Utils\Tracking\PageTracker;
 
 return [
     'logger' => [
@@ -26,6 +27,12 @@ return [
     'serverInfo' => [
         'resolver' => function () {
             return new Info();
+        },
+        'singleton' => true
+    ],
+    'pageTracker' => [
+        'resolver' => function () {
+            return new PageTracker();
         },
         'singleton' => true
     ],

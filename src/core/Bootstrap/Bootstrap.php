@@ -4,18 +4,15 @@ namespace Nxp\Core\Bootstrap;
 
 use Exception;
 use Nxp\Core\Hook\Hook;
-use Nxp\Core\Database\Database;
 use Nxp\Core\Config\ConfigHandler;
-use Nxp\Core\Utils\Session\Session;
+use Nxp\Core\Utils\Session\Manager;
 use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Utils\Service\Container;
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\PluginManager\PluginLoader;
-use Nxp\Core\Utils\Annotations\Annotations;
-use Nxp\Core\Utils\Navigation\Router\RouteCollection;
 use Nxp\Core\Utils\Tracking\PageTracker;
-use Nxp\Core\Utils\Navigation\Router\RouteLoader;
-use Nxp\Core\Utils\Navigation\Router\RouteDispatcher;
+use Nxp\Core\Utils\Navigation\Router\Loader;
+use Nxp\Core\Utils\Navigation\Router\Dispatcher;
 
 /**
  * Bootstrap class for initializing the system, loading configurations and plugins,
@@ -114,15 +111,15 @@ class Bootstrap
      * @return void
      */
     private function loadRoutes()
-    {        
+    {
         // Load routes from web.php
-        RouteLoader::loadFromFile(__DIR__ . "/../../../app/routes/web.php");
+        Loader::loadFromFile(__DIR__ . "/../../../app/routes/web.php");
 
         // Load routes from api.php
-        RouteLoader::loadFromFile(__DIR__ . "/../../../app/routes/api.php");
-                
+        Loader::loadFromFile(__DIR__ . "/../../../app/routes/api.php");
+
         // Dispatch the request to the appropriate route
-        RouteDispatcher::dispatch();
+        Dispatcher::dispatch();
     }
 
 
@@ -133,6 +130,7 @@ class Bootstrap
      */
     private function loadConfigs()
     {
+
         ConfigHandler::load("app");
         ConfigHandler::load("constants");
     }
@@ -187,7 +185,7 @@ class Bootstrap
      */
     private function startSession()
     {
-        Session::start();
+        Manager::getInstance();
     }
 
     /**
@@ -197,6 +195,11 @@ class Bootstrap
      */
     private function trackPage()
     {
-        PageTracker::track();
+        $container = Container::getInstance();
+        // Get the PageTracker service from the container
+        $pageTracker = $container->get('pageTracker');
+
+        // Use the PageTracker service
+        $pageTracker->track();
     }
 }

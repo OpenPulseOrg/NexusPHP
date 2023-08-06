@@ -3,9 +3,8 @@
 namespace Nxp\Core\Security\Logging;
 
 use Nxp\Core\Database\Factories\Query as FactoriesQuery;
-use Nxp\Core\Database\Query;
 use Nxp\Core\Utils\Manipulator\DateManipulator;
-use Nxp\Core\Utils\Randomization\RandomGenerator;
+use Nxp\Core\Utils\Randomization\Generator;
 
 /**
  * Logger class provides methods for logging messages to a database table or local .log files.
@@ -95,7 +94,7 @@ class Logger
             'message' => $message,
             'timestamp' => date('Y-m-d H:i:s'),
             'metadata' => isset($metadata) ? (is_array($metadata) ? json_encode($metadata) : $metadata) : null,
-            'uuid' => RandomGenerator::generateUUID()
+            'uuid' => Generator::generateUUID()
         ];
 
         $this->queryFactory->insert($this->table, $data);

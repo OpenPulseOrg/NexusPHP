@@ -7,7 +7,7 @@ use Exception;
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Utils\Navigation\Redirects;
-use Nxp\Core\Utils\Randomization\RandomGenerator;
+use Nxp\Core\Utils\Randomization\Generator;
 use Nxp\Core\Utils\Service\Container;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -84,7 +84,7 @@ class DirectoryManager
 
         $dateTime = new DateTime();
         $formattedDate = $dateTime->format('YmdHis');
-        $randomString = RandomGenerator::generateRandomString();
+        $randomString = Generator::generateRandomString();
 
         $folderName = $prefix . $formattedDate . '_' . $randomString;
 

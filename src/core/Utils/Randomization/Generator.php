@@ -3,11 +3,11 @@
 namespace Nxp\Core\Utils\Randomization;
 
 /**
- * RandomGenerator class for generating random values and data.
+ * Generator class for generating random values and data.
  *
  * @package Nxp\Core\Utils\Randomization
  */
-class RandomGenerator
+class Generator
 {
     /**
      * Generate a UUID (Universally Unique Identifier) using either the com_create_guid() function or the openssl_random_pseudo_bytes() function.

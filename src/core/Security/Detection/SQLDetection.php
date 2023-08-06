@@ -2,45 +2,55 @@
 
 namespace Nxp\Core\Security\Detection;
 
-/**
- * Class SQLDetection
- * 
- * This class is responsible for detecting possible SQL injection attempts in various parts of the application, such as URL, POST data, GET data, headers, and cookies.
- */
+use Nxp\Core\Database\Factories\Query;
+use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Service\Container;
+
 class SQLDetection
 {
-    /**
-     * List of dangerous SQL commands to be checked against the input string.
-     *
-     * @var array
-     */
-    private $sqlCommands = array("select", "drop", "update", "delete", "insert", "union", "--", "null", "like", "where");
+    private $sqlCommands = array(
+        "select", "drop", "update", "delete", "insert", "union", "--",
+        "null", "like", "where", "truncate", "alter", "create", "execute",
+        "exec", "declare", "savepoint", "rollback", "set", "show", "use",
+        "index", "between", "group by", "order by", "having", "limit",
+        "into", "join", "inner join", "left join", "right join", "full join",
+        "cross join", "self join", "case", "end", "when", "then", "else",
+        "replace", "distinct", "exists", "all", "any", "some", "view", "top",
+        "asc", "desc", "cast", "convert", "avg", "count", "first", "last",
+        "min", "max", "sum", "group_concat", "len", "char", "varchar",
+        "date", "datetime", "timestamp", "password", "load_file", "outfile",
+        "character", "session_user", "system_user", "current_user", "user",
+        "lock", "keys", "privileges", "procedure", "function", "database",
+        "grant", "revoke", "flush"
+    );
+    private $specialCharacters = array("<", ">", "\\");
 
-    /**
-     * List of dangerous special characters to be checked against the input string.
-     *
-     * @var array
-     */
-    private $specialCharacters = array("=", "<", ">", "\\");
+    private function logAttempt($message)
+    {
 
-    /**
-     * Scan the given string for dangerous SQL commands and special characters.
-     *
-     * @param string $string The input string to be scanned for SQL injection attempts.
-     * @return bool True if any dangerous SQL command or special character is found, otherwise false.
-     */
+        $queryFactory = new Query(Container::getInstance());
+
+        $logger = new Logger($queryFactory);
+
+        $logger->log("WARNING", "Possible SQL Infection Detected", [
+            "Message" => $message
+        ]);
+    }
+
     private function scan($string)
     {
         $string = urldecode($string);
 
         foreach ($this->sqlCommands as $sqlCommand) {
             if (stripos($string, $sqlCommand) !== false) {
+                $this->logAttempt("Possible SQL Injection detected: " . $string);
                 return true;
             }
         }
 
         foreach ($this->specialCharacters as $specialCharacter) {
-            if (stripos($string, $specialCharacter) !== false) {
+            if (strpos($string, $specialCharacter) !== false) {
+                $this->logAttempt("Suspicious character detected: " . $string);
                 return true;
             }
         }
@@ -48,88 +58,51 @@ class SQLDetection
         return false;
     }
 
-    /**
-     * Check the URL for possible SQL injection attempts.
-     *
-     * @return bool True if a possible SQL injection attempt is detected in the URL, otherwise false.
-     */
     public function detectSqlInjectionInURL()
     {
         $url = $_SERVER['REQUEST_URI'];
-
-        if ($this->scan($url)) {
-            echo "Possible SQL Injection";
-            exit();
-        }
-
-        return false;
+        return $this->scan($url);
     }
 
-    /**
-     * Check POST data for possible SQL injection attempts.
-     *
-     * @return bool True if a possible SQL injection attempt is detected in any POST data, otherwise false.
-     */
     public function detectSqlInjectionInPostData()
     {
         foreach ($_POST as $postData) {
             if ($this->scan($postData)) {
-                echo "Possible SQL Injection";
-                exit();
+                return true;
             }
         }
-
         return false;
     }
 
-    /**
-     * Check GET data for possible SQL injection attempts.
-     *
-     * @return bool True if a possible SQL injection attempt is detected in any GET data, otherwise false.
-     */
     public function detectSqlInjectionInGetData()
     {
         foreach ($_GET as $getData) {
             if ($this->scan($getData)) {
-                echo "Possible SQL Injection";
-                exit();
+                return true;
             }
         }
-
         return false;
     }
 
-    /**
-     * Check headers for possible SQL injection attempts.
-     *
-     * @return bool True if a possible SQL injection attempt is detected in any header value, otherwise false.
-     */
     public function detectSqlInjectionInHeaders()
     {
-        foreach (getallheaders() as $name => $value) {
-            if ($this->scan($value)) {
-                echo "Possible SQL Injection.";
-                exit();
+        if (function_exists('getallheaders')) {
+            foreach (getallheaders() as $name => $value) {
+                if ($this->scan($value)) {
+                    return true;
+                }
             }
         }
-
         return false;
     }
 
-    /**
-     * Check cookies for possible SQL injection attempts.
-     *
-     * @return bool True if a possible SQL injection attempt is detected in any cookie data, otherwise false.
-     */
     public function detectSqlInjectionInCookies()
     {
         foreach ($_COOKIE as $cookieData) {
             if ($this->scan($cookieData)) {
-                echo "Possible SQL Injection";
-                exit();
+                return true;
             }
         }
-
         return false;
     }
 }

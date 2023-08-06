@@ -2,8 +2,19 @@
 
 namespace Nxp\Core\Security\Server;
 
+/**
+ * The Info class is used to manage server-related information and headers for improved security and privacy.
+ */
 class Info
 {
+    /**
+     * Clean up server headers to enhance security and privacy.
+     *
+     * This method removes default headers that may reveal server details and adds custom security and privacy headers.
+     * Custom headers added here can help prevent certain attacks and enforce stricter security policies.
+     *
+     * @return void
+     */
     public function cleanHeaders()
     {
         // Remove default headers that may reveal server details

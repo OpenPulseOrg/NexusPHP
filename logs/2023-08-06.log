@@ -1,0 +1,2 @@
+2023-08-06 17:50:39 [WARNING] Possible SQL Infection Detected Metadata: {"Message":"Possible SQL Injection detected: \/?username=select * from users"}
+2023-08-06 17:50:59 [WARNING] Possible SQL Infection Detected Metadata: {"Message":"Possible SQL Injection detected: \/?search=John UNION SELECT * FROM admins"}
