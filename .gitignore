@@ -6,3 +6,4 @@ app/config/constants.php
 app/config/app.php
 app/config/database.php
 app/config/keys.php
+app/config/app.php
