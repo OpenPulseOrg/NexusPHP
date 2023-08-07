@@ -2,27 +2,28 @@
 
 namespace Nxp\Core\Utils\Form;
 
-use Nxp\Core\Utils\From\Elements\File;
-use Nxp\Core\Utils\From\Elements\Tags;
-use Nxp\Core\Utils\From\Elements\Input;
-use Nxp\Core\Utils\From\Elements\Radio;
-use Nxp\Core\Utils\From\Elements\Select;
-use Nxp\Core\Utils\From\Elements\Checkbox;
-use Nxp\Core\Utils\From\Elements\Password;
-use Nxp\Core\Utils\From\Elements\Textarea;
-use Nxp\Core\Utils\From\Elements\UrlInput;
-use Nxp\Core\Utils\From\Elements\DateInput;
-use Nxp\Core\Utils\From\Elements\TimeInput;
-use Nxp\Core\Utils\From\Elements\EmailInput;
-use Nxp\Core\Utils\From\Elements\RadioGroup;
-use Nxp\Core\Utils\From\Elements\RangeInput;
-use Nxp\Core\Utils\From\Elements\ColorPicker;
-use Nxp\Core\Utils\From\Elements\HiddenInput;
-use Nxp\Core\Utils\From\Elements\NumberInput;
-use Nxp\Core\Utils\From\Elements\ResetButton;
-use Nxp\Core\Utils\From\Elements\SubmitButton;
-use Nxp\Core\Utils\From\Elements\CheckboxGroup;
-use Nxp\Core\Utils\From\Elements\PhoneNumberInput;
+use Nxp\Core\Utils\Form\Elements\File;
+use Nxp\Core\Utils\Form\Elements\Tags;
+use Nxp\Core\Utils\Form\Elements\Input;
+use Nxp\Core\Utils\Form\Elements\Radio;
+use Nxp\Core\Utils\Form\Elements\Select;
+use Nxp\Core\Utils\Form\Elements\Checkbox;
+use Nxp\Core\Utils\Form\Elements\Password;
+use Nxp\Core\Utils\Form\Elements\Textarea;
+use Nxp\Core\Utils\Form\Elements\UrlInput;
+use Nxp\Core\Utils\Form\Elements\DateInput;
+use Nxp\Core\Utils\Form\Elements\TimeInput;
+use Nxp\Core\Utils\Form\Elements\EmailInput;
+use Nxp\Core\Utils\Form\Elements\RadioGroup;
+use Nxp\Core\Utils\Form\Elements\RangeInput;
+use Nxp\Core\Utils\Form\Elements\ColorPicker;
+use Nxp\Core\Utils\Form\Elements\HiddenInput;
+use Nxp\Core\Utils\Form\Elements\NumberInput;
+use Nxp\Core\Utils\Form\Elements\ResetButton;
+use Nxp\Core\Utils\Form\Elements\SubmitButton;
+use Nxp\Core\Utils\Form\Elements\CheckboxGroup;
+use Nxp\Core\Utils\Form\Elements\PhoneNumberInput;
+
 
 class FormFactory
 {

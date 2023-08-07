@@ -1,5 +1,8 @@
-src/bin/phpDocumentor
 /vendor/
 docs/
 .phpdoc
 storage/certs/cert3.pem
+app/config/constants.php
+app/config/app.php
+app/config/database.php
+app/config/keys.php

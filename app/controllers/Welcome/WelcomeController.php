@@ -6,7 +6,7 @@ use Nxp\Core\Templating\TemplateEngine;
 use Nxp\Core\Utils\HTTP\Request;
 use Nxp\Core\Utils\HTTP\Response;
 use Nxp\Core\Utils\API\APIRequestHandler;
-use Nxp\Core\Utils\From\FormFactory;
+use Nxp\Core\Utils\Form\FormFactory;
 
 class WelcomeController
 {

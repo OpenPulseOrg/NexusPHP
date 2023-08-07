@@ -10,9 +10,13 @@ use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Utils\Service\Container;
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\PluginManager\PluginLoader;
-use Nxp\Core\Utils\Tracking\PageTracker;
+use Nxp\Core\Utils\Error\Management;
+use Nxp\Core\Utils\Error\Sentry\Client;
+use Nxp\Core\Utils\Error\Sentry\Event;
 use Nxp\Core\Utils\Navigation\Router\Loader;
 use Nxp\Core\Utils\Navigation\Router\Dispatcher;
+
+use function Sentry\init;
 
 /**
  * Bootstrap class for initializing the system, loading configurations and plugins,
@@ -44,8 +48,11 @@ class Bootstrap
      */
     public static function init()
     {
+        
         $container = Container::getInstance();
-
+        
+        new Management($container);
+        
         $bootstrap = new self($container);
         $bootstrap->loadServices();
         $bootstrap->checkSystemTables();
