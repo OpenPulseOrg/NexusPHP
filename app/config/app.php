@@ -25,5 +25,8 @@ return array(
     "RETRY_DELAY" => 100000, // Change this to your desired retry delay in microseconds
 
     // Backup Settings
-    "BACKUP_ZIP_LOCATION" => "/data/core_backup"
+    "BACKUP_ZIP_LOCATION" => "/data/core_backup",
+
+    "USE_SENTRY" => true,
+    "SENTRY_DSN" => "https://426f565639edbe1269dbbe1f4044afe7@sentry.kgorman.co/2"
 );
