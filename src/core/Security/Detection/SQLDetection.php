@@ -2,12 +2,12 @@
 
 namespace Nxp\Core\Security\Detection;
 
-use Nxp\Core\Database\Factories\Query;
-use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Service\Container;
 
 class SQLDetection
 {
+    private $errorHandler;
     private $sqlCommands = array(
         "select", "drop", "update", "delete", "insert", "union", "--",
         "null", "like", "where", "truncate", "alter", "create", "execute",
@@ -28,13 +28,19 @@ class SQLDetection
     private function logAttempt($message)
     {
 
-        $queryFactory = new Query(Container::getInstance());
+        $container = Container::getInstance();
 
-        $logger = new Logger($queryFactory);
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
 
-        $logger->log("WARNING", "Possible SQL Infection Detected", [
-            "Message" => $message
-        ]);
+        $this->errorHandler->handleError(
+            "Possible SQL Infection Detected",
+            null,
+            [
+                "Message" => $message
+            ],
+            "CRITICAL"
+        );
     }
 
     private function scan($string)

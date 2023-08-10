@@ -3,16 +3,15 @@
 namespace Nxp\Core\Config;
 
 use Exception;
-use Nxp\Core\Database\Factories\Query;
-use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Service\Container;
 
 /**
- * The ConfigHandler class provides methods for loading and retrieving configuration files.
+ * The ConfigurationManager class provides methods for loading and retrieving configuration files.
  *
  * @package Nxp\Core\Config
  */
-class ConfigHandler
+class ConfigurationManager
 {
     // Static property to hold the loaded configurations.
     private static $configs = [];
@@ -39,18 +38,14 @@ class ConfigHandler
             self::$configs[$filename] = $config;
             return $config;
         } else {
-            $queryFactory = new Query(Container::getInstance());
-            $logger = new Logger($queryFactory);
 
-            $logger->log("CRITICAL", "Config Handler Error", [
-                "Message" => "Error Executing Plugin",
-                "Message" => "Config file not found",
-                "Filename" => $filename,
-                "Error" => $e->getMessage(),
-                "Code" => $e->getCode(),
-            ]);
+            $factory = new ErrorFactory(Container::getInstance());
 
-            exit();
+            $errorHandler = $factory->createErrorHandler();
+    
+            $errorHandler->handleError("Config Handler Error", null, ["Message"=>"Config file not found", "Filename"=>$filename], "CRITICAL");
+
+            throw new Exception("$filename was not found in the config handler!");
         }
     }
 

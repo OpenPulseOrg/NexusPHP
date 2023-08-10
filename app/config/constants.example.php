@@ -1,6 +1,6 @@
 <?php
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 
 // Root Constant
 define("ROOT", __DIR__ . "/../../");
@@ -21,5 +21,5 @@ define("PLUGIN_ROOT_PATH", ROOT . "src/plugins");
 define("VIEWS_ROOT_PATH", ROOT . "app/views/");
 
 // Backup Constants
-define("DEFAULT_BACKUP_LOCATION_ROOT", ROOT . "app/" . ConfigHandler::get("app", "BACKUP_ZIP_LOCATION"));
+define("DEFAULT_BACKUP_LOCATION_ROOT", ROOT . "app/" . ConfigurationManager::get("app", "BACKUP_ZIP_LOCATION"));
 

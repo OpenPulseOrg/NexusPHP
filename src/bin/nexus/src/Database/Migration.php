@@ -2,7 +2,7 @@
 
 namespace Database;
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use PDO;
 use QuestionHelper;
 
@@ -13,7 +13,7 @@ class Migration
 
     public function __construct()
     {
-        $this->databaseType = ConfigHandler::get("database", "DATABASE_TYPE");
+        $this->databaseType = ConfigurationManager::get("database", "DATABASE_TYPE");
     }
 
     public function migrate()

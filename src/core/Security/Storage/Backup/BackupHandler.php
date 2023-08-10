@@ -2,8 +2,7 @@
 
 namespace Nxp\Core\Security\Storage\Backup;
 
-use Nxp\Core\Database\Factories\Query;
-use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Service\Container;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -19,6 +18,7 @@ class BackupHandler
     private $backupDir;
     private $rootDir;
     private $excludedFolders;
+    private $errorHandler;
 
     /**
      * Constructs a new BackupHandler object.
@@ -56,27 +56,39 @@ class BackupHandler
      */
     public function generateBackup()
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
+        $container = Container::getInstance();
+
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
 
         // Create a timestamped filename for the backup
         $backupFilename = 'backup_' . date('Y-m-d_H-i-s') . '.zip';
 
         // Check if the backup directory exists and is writable
         if (!file_exists($this->backupDir) || !is_writable($this->backupDir)) {
-            $logger->log("WARNING", "Backup Error", [
-                "Message" => "Backup directory does not exist or is not writable",
-                "Backup Directory" => $this->backupDir
-            ]);
+            $this->errorHandler->handleError(
+                "Backup Error",
+                null,
+                [
+                    "Message" => "Backup directory does not exist or is not writable",
+                    "Backup Directory" => $this->backupDir
+                ],
+                "WARNING"
+            );
         }
 
         // Create a ZIP archive of the entire root directory
         $zip = new ZipArchive();
         if ($zip->open($this->backupDir . '/' . $backupFilename, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-            $logger->log("WARNING", "Backup Error", [
-                "Message" => "Failed to create backup file",
-                "Backup Directory" => $this->backupDir
-            ]);
+            $this->errorHandler->handleError(
+                "Backup Error",
+                null,
+                [
+                    "Message" => "Failed to create backup file",
+                    "Backup Directory" => $this->backupDir
+                ],
+                "WARNING"
+            );
         }
         $this->zipDirectory($this->rootDir, $zip);
         $zip->close();

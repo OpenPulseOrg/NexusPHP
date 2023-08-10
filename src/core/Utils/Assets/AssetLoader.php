@@ -2,7 +2,7 @@
 
 namespace Nxp\Core\Utils\Assets;
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Utils\Validation\Validation;
 
 /**
@@ -23,7 +23,7 @@ class AssetLoader
     {
         $sanitizedFilename = Validation::sanitizeString($filename);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '<link rel="stylesheet" type="text/css" href="' .  $root_install . "/storage/assets/css/" . $sanitizedFilename . '">' . PHP_EOL;
     }
 
@@ -37,7 +37,7 @@ class AssetLoader
     {
         $sanitizedFilename = Validation::sanitizeString($filename);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '<script src="' .  $root_install . "/storage/assets/js/" . $sanitizedFilename . '"></script>' . PHP_EOL;
     }
 
@@ -53,7 +53,7 @@ class AssetLoader
         $sanitizedFilename = Validation::sanitizeString($filename);
         $sanitizedAlt = Validation::sanitizeString($alt);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
 
         // Start building the image tag with required attributes
         $imageTag = '<img src="' . $root_install . '/storage/assets/img/' . $sanitizedFilename . '" alt="' . $sanitizedAlt . '"';
@@ -85,7 +85,7 @@ class AssetLoader
     {
         $sanitizedFilename = Validation::sanitizeString($filename);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '@import url("' . $root_install . '/storage/assets/fonts/' . $sanitizedFilename . '");' . PHP_EOL;
     }
 
@@ -191,7 +191,7 @@ class AssetLoader
     public static function generateFavicon($filename, $size = null)
     {
         $sanitizedFilename = Validation::sanitizeString($filename);
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
 
         // Get the file extension from the filename
         $fileExtension = strtolower(pathinfo($sanitizedFilename, PATHINFO_EXTENSION));
@@ -229,7 +229,7 @@ class AssetLoader
         $sanitizedFilename = Validation::sanitizeString($filename);
         $sanitizedType = Validation::sanitizeString($type);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '<source src="' . $root_install . '/storage/assets/media/' . $sanitizedFilename . '" type="' . $sanitizedType . '">' . PHP_EOL;
     }
 
@@ -259,7 +259,7 @@ class AssetLoader
         $sanitizedFilename = Validation::sanitizeString($filename);
         $sanitizedPoster = Validation::sanitizeString($poster);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '<video src="' . $root_install . '/storage/assets/videos/' . $sanitizedFilename . '"';
 
         if ($sanitizedPoster !== null) {
@@ -279,7 +279,7 @@ class AssetLoader
     {
         $sanitizedFilename = Validation::sanitizeString($filename);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '<audio src="' . $root_install . '/storage/assets/audio/' . $sanitizedFilename . '"></audio>' . PHP_EOL;
     }
 
@@ -306,7 +306,7 @@ class AssetLoader
     {
         $sanitizedFilename = Validation::sanitizeString($filename);
 
-        $root_install = ConfigHandler::get("app", "ROOT_INSTALL");
+        $root_install = ConfigurationManager::get("app", "ROOT_INSTALL");
         echo '<script src="' . $root_install . '/storage/json/' . $sanitizedFilename . '"></script>' . PHP_EOL;
     }
 

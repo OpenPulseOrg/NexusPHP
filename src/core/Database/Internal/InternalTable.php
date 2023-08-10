@@ -2,8 +2,7 @@
 
 namespace Nxp\Core\Database\Internal;
 
-use Nxp\Core\Database\Factories\Query;
-use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Service\Container;
 use PDO;
 use PDOException;
@@ -16,6 +15,7 @@ use PDOException;
 final class InternalTable
 {
     private $container;
+    private $errorHandler;
     private $pdo;
     private $logger;
 
@@ -29,9 +29,8 @@ final class InternalTable
         $this->container = $container;
         $this->pdo = $container->get('pdo');
 
-        $queryFactory = new Query($container);
-        $this->logger = new Logger($queryFactory);
-
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
     }
 
     /**
@@ -154,13 +153,17 @@ final class InternalTable
             $sql = "DROP TABLE IF EXISTS $table";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-            $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
-           
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -178,12 +181,17 @@ final class InternalTable
             $sql = "ALTER TABLE $table ADD COLUMN $column $type";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -200,12 +208,17 @@ final class InternalTable
             $sql = "ALTER TABLE $table DROP COLUMN $column";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -226,12 +239,17 @@ final class InternalTable
             $sql = "ALTER TABLE $table ADD $unique_sql INDEX $index_name ($column)";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -249,12 +267,17 @@ final class InternalTable
             $sql = "ALTER TABLE $table DROP INDEX $index_name";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -278,12 +301,17 @@ final class InternalTable
             $sql = "ALTER TABLE $table ADD FOREIGN KEY ($column) REFERENCES $refTable ($refColumn) ON DELETE $onDelete ON UPDATE $onUpdate";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -301,12 +329,17 @@ final class InternalTable
             $sql = "ALTER TABLE $table DROP FOREIGN KEY $column";
             $this->pdo->exec($sql);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "Table" => $table,
-                "SQL Command" => $sql
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "Table" => $table,
+                    "SQL Command" => $sql
+                ],
+                "ERROR"
+            );
         }
     }
 
@@ -321,11 +354,16 @@ final class InternalTable
         try {
             $this->pdo->exec('SET FOREIGN_KEY_CHECKS=0');
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "SQL Command" => 'SET FOREIGN_KEY_CHECKS=0'
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "SQL Command" => 'SET FOREIGN_KEY_CHECKS=0'
+                ],
+                "CRITICAL"
+            );
         }
     }
 
@@ -337,13 +375,21 @@ final class InternalTable
     public function enableForeignKeyChecks()
     {
         try {
-            $this->pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+            $this->pdo->exec('SET FOREIGN_KE
+            Y_CHECKS=1');
+            
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Code" => $e->getCode(),
-                "Error" => $e->getMessage(),
-                "SQL Command" => 'SET FOREIGN_KEY_CHECKS=1'
-            ]);
+
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                [
+                    "Code" => $e->getCode(),
+                    "Error" => $e->getMessage(),
+                    "SQL Command" => 'SET FOREIGN_KEY_CHECKS=1'
+                ],
+                "CRITICAL"
+            );
         }
     }
 }

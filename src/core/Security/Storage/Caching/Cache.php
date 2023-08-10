@@ -3,7 +3,7 @@
 namespace Nxp\Core\Security\Storage\Caching;
 
 use Exception;
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Security\Cryptography\Hash\Hasher;
 
 /**
@@ -64,7 +64,7 @@ class Cache
 
         $cacheContent = serialize($cacheData);
 
-        $hasher = new Hasher(ConfigHandler::get("keys", "CIPHER_KEY"));
+        $hasher = new Hasher(ConfigurationManager::get("keys", "CIPHER_KEY"));
 
         $hashedContent = $hasher->hash($cacheContent);
 
@@ -88,7 +88,7 @@ class Cache
      */
     public function get($key)
     {
-        $hasher = new Hasher(ConfigHandler::get("keys", "CIPHER_KEY"));
+        $hasher = new Hasher(ConfigurationManager::get("keys", "CIPHER_KEY"));
 
         $cacheFilePath = $this->getCacheFilePath($key);
 

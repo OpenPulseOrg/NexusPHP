@@ -3,8 +3,7 @@
 namespace Nxp\Core\Database\Internal;
 
 use Exception;
-use Nxp\Core\Database\Factories\Query;
-use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Navigation\Redirects;
 use Nxp\Core\Utils\Service\Container;
 use PDO;
@@ -20,7 +19,7 @@ final class InternalQuery
     private $container;
     private $pdo;
     private $table;
-    private $logger;
+    private $errorHandler;
     private $select = '*';
     private $where = '';
     private $params = [];
@@ -38,8 +37,8 @@ final class InternalQuery
         $this->container = $container;
         $this->pdo = $container->get('pdo');
 
-        $queryFactory = new Query($container);
-        $this->logger = new Logger($queryFactory);
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
     }
 
     /**
@@ -148,9 +147,13 @@ final class InternalQuery
     public function get()
     {
         if (empty($this->table)) {
-             $this->logger->log("ERROR", "SQL Error Occured", [
-                "Error" => "No table specified for GET query"
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                ["Message" => "No table specified for GET query"],
+                "ERROR"
+            );
+
             Redirects::redirectToPreviousPageOrHome();
         }
         $sql = "SELECT $this->select FROM $this->table";
@@ -168,21 +171,21 @@ final class InternalQuery
         }
         try {
             $stmt = $this->pdo->prepare($sql);
-            if (!$stmt) {
-                 $this->logger->log("ERROR", "SQL Error Occured", [
-                    "Error" => "Failed to prepare SQL statement",
-                    "SQL" => $sql
-                ]);
-            }
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                ["Message" => "Failed to prepare SQL statement", "Table" => $this->table, "SQL Command" => $sql],
+                "ERROR"
+            );
             $stmt->execute($this->params);
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Table" => $this->table,
-                "SQL Command" => $sql,
-                "Error" => $e->getMessage(),
-                "Code" => $e->getCode()
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                $e,
+                ["Message" => "An error occurred with the SQL query", "Table" => $this->table, "SQL Command" => $sql],
+                "CRITICAL"
+            );
         }
     }
 
@@ -207,9 +210,12 @@ final class InternalQuery
     public function count()
     {
         if (empty($this->table)) {
-             $this->logger->log("ERROR", "SQL Error Occured", [
-                "Error" => "No table specified for COUNT query"
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                ["Message" => "No table specified for GET query"],
+                "ERROR"
+            );
         }
         $sql = "SELECT COUNT(*) FROM $this->table";
         if (!empty($this->where)) {
@@ -217,21 +223,21 @@ final class InternalQuery
         }
         try {
             $stmt = $this->pdo->prepare($sql);
-            if (!$stmt) {
-                 $this->logger->log("ERROR", "SQL Error Occured", [
-                    "Error" => "Failed to prepare SQL statement",
-                    "SQL" => $sql
-                ]);
-            }
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                null,
+                ["Message" => "Failed to prepare SQL statement", "Table" => $this->table, "SQL Command" => $sql],
+                "ERROR"
+            );
             $stmt->execute($this->params);
             return $stmt->fetchColumn();
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Table" => $this->table,
-                "SQL Command" => $sql,
-                "Error" => $e->getMessage(),
-                "Code" => $e->getCode()
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                $e,
+                ["Message" => "An error occurred with the SQL query", "Table" => $this->table, "SQL Command" => $sql],
+                "CRITICAL"
+            );
         }
     }
 
@@ -279,9 +285,12 @@ final class InternalQuery
     {
         try {
             if (empty($this->table)) {
-                 $this->logger->log("ERROR", "SQL Error Occurred", [
-                    "Error" => "No table specified for UPDATE query"
-                ]);
+                $this->errorHandler->handleError(
+                    "SQL Error Occurred",
+                    null,
+                    ["Message" => "No table specified for GET query"],
+                    "ERROR"
+                );
             }
             $set = [];
             $values = [];
@@ -295,21 +304,23 @@ final class InternalQuery
             }
             $stmt = $this->pdo->prepare($sql);
             if (!$stmt) {
-                 $this->logger->log("ERROR", "SQL Error Occurred", [
-                    "Error" => "Failed to prepare SQL statement",
-                    "SQL" => $sql
-                ]);
+                $this->errorHandler->handleError(
+                    "SQL Error Occurred",
+                    null,
+                    ["Message" => "Failed to prepare SQL statement", "Table" => $this->table, "SQL Command" => $sql],
+                    "ERROR"
+                );
             }
             $values = array_merge($values, $this->params);
             $stmt->execute($values);
             return true;
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occurred", [
-                "Table" => $this->table,
-                "SQL Command" => $sql,
-                "Error" => $e->getMessage(),
-                "Code" => $e->getCode()
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                $e,
+                ["Message" => "An error occurred with the SQL query", "Table" => $this->table, "SQL Command" => $sql],
+                "CRITICAL"
+            );
             throw new Exception($e);
         }
         return false;
@@ -327,9 +338,12 @@ final class InternalQuery
     {
         try {
             if (empty($this->table)) {
-                 $this->logger->log("ERROR", "SQL Error Occured", [
-                    "Error" => "No table specified for DELETE query"
-                ]);
+                $this->errorHandler->handleError(
+                    "SQL Error Occurred",
+                    null,
+                    ["Message" => "No table specified for GET query"],
+                    "ERROR"
+                );
             }
             $sql = "DELETE FROM $this->table";
             if (!empty($this->where)) {
@@ -337,19 +351,21 @@ final class InternalQuery
             }
             $stmt = $this->pdo->prepare($sql);
             if (!$stmt) {
-                 $this->logger->log("ERROR", "SQL Error Occured", [
-                    "Error" => "Failed to prepare SQL statement",
-                    "SQL" => $sql
-                ]);
+                $this->errorHandler->handleError(
+                    "SQL Error Occurred",
+                    null,
+                    ["Message" => "Failed to prepare SQL statement", "Table" => $this->table, "SQL Command" => $sql],
+                    "ERROR"
+                );
             }
             return $stmt->execute($this->params);
         } catch (PDOException $e) {
-             $this->logger->log("CRITICAL", "SQL Error Occured", [
-                "Table" => $this->table,
-                "SQL Command" => $sql,
-                "Error" => $e->getMessage(),
-                "Code" => $e->getCode()
-            ]);
+            $this->errorHandler->handleError(
+                "SQL Error Occurred",
+                $e,
+                ["Message" => "An error occurred with the SQL query", "Table" => $this->table, "SQL Command" => $sql],
+                "CRITICAL"
+            );
         }
     }
 }

@@ -4,9 +4,8 @@ namespace Nxp\Core\PluginManager;
 
 use Exception;
 use ReflectionClass;
-use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Common\Interfaces\Plugin\PluginInterface;
-use Nxp\Core\Database\Factories\Query;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Service\Container;
 
 /**
@@ -17,10 +16,16 @@ use Nxp\Core\Utils\Service\Container;
 class PluginLoader
 {
     private $plugins;
+    private $errorHandler;
 
     public function __construct()
     {
         $this->plugins = [];
+
+        $container = Container::getInstance();
+
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
     }
 
     /**
@@ -33,9 +38,6 @@ class PluginLoader
      */
     public function loadPlugins()
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
-
         $directory = PLUGIN_ROOT_PATH;
 
         if (is_dir($directory)) {
@@ -46,10 +48,15 @@ class PluginLoader
                 $path = $plugin . '/' . $pluginName . '.php';
 
                 if (!is_file($path)) {
-                    $logger->log("WARNING", "Plugin Error", [
-                        "Message" => "Plugin class file not found for plugin $plugin",
-                        "Path" => $path,
-                    ]);
+                    $this->errorHandler->handleError(
+                        "Plugin Error",
+                        null,
+                        [
+                            "Message" => "Plugin class file not found for plugin $plugin",
+                            "Path" => $path,
+                        ],
+                        "CRITICAL"
+                    );
                     throw new Exception("Plugin class file not found for plugin $plugin");
                 }
 
@@ -58,11 +65,17 @@ class PluginLoader
                 $className = 'Nxp\\Core\\Plugin\\' . $pluginName . '\\' . $pluginName;
 
                 if (!class_exists($className)) {
-                    $logger->log("WARNING", "Plugin Error", [
-                        "Message" => "Class '$className' not found in plugin file '$path'",
-                        "Path" => $path,
-                        "Classname" => $className
-                    ]);
+                    $this->errorHandler->handleError(
+                        "Plugin Error",
+                        null,
+                        [
+                            "Message" => "Class '$className' not found in plugin file '$path'",
+                            "Path" => $path,
+                            "Classname" => $className
+                        ],
+                        "CRITICAL"
+                    );
+
                     throw new Exception("Class '$className' not found in plugin file '$path'");
                 }
 
@@ -78,10 +91,16 @@ class PluginLoader
                         $reflectionProperty->setAccessible(true);
                         $reflectionProperty->setValue($pluginInstance, $manifestData);
                     } else {
-                        $logger->log("WARNING", "Plugin Error", [
-                            "Message" => "Invalid manifest.json file for plugin $plugin",
-                            "Path" => $manifestPath,
-                        ]);
+                        $this->errorHandler->handleError(
+                            "Plugin Error",
+                            null,
+                            [
+                                "Message" => "Invalid manifest.json file for plugin $plugin",
+                                "Path" => $manifestPath,
+                            ],
+                            "CRITICAL"
+                        );
+
                         throw new Exception("Invalid manifest.json file for plugin $plugin");
                     }
                 }
@@ -94,10 +113,16 @@ class PluginLoader
                 }
             }
         } else {
-            $logger->log("WARNING", "Plugin Error", [
-                "Message" => "Plugin directory '$directory' not found",
-                "Path" => $directory,
-            ]);
+            $this->errorHandler->handleError(
+                "Plugin Error",
+                null,
+                [
+                    "Message" => "Plugin directory '$directory' not found",
+                    "Path" => $directory,
+                ],
+                "CRITICAL"
+            );
+
             throw new Exception("Plugin Directory '$directory' not found");
         }
     }
@@ -121,14 +146,15 @@ class PluginLoader
                 include_once($controllerFile);
             }
         } else {
-            $queryFactory = new Query(Container::getInstance());
-            $logger = new Logger($queryFactory);
-
-
-            $logger->log("WARNING", "Plugin Error", [
-                "Message" => "Controller directory '$controllerPath' not found",
-                "Path" => $controllerPath,
-            ]);
+            $this->errorHandler->handleError(
+                "Plugin Error",
+                null,
+                [
+                    "Message" => "Controller directory '$controllerPath' not found",
+                    "Path" => $controllerPath,
+                ],
+                "CRITICAL"
+            );
         }
     }
 

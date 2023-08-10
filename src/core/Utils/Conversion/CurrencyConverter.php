@@ -2,7 +2,7 @@
 
 namespace Nxp\Core\Utils\Conversion;
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 
 class CurrencyConverter
 {
@@ -20,7 +20,7 @@ class CurrencyConverter
      */
     public static function convert($amount, $fromCurrency, $toCurrency)
     {
-        self::$apiKey = ConfigHandler::get('keys', 'EXCHANGE_RATE_API_KEY');
+        self::$apiKey = ConfigurationManager::get('keys', 'EXCHANGE_RATE_API_KEY');
 
         $exchangeRate = self::fetchExchangeRate($fromCurrency, $toCurrency);
         if ($exchangeRate === null) {

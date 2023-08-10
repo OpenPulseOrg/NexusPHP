@@ -3,7 +3,7 @@
 // TO-DO
 namespace Nxp\Core\Utils\Versioning;
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 
 class VersionHandler
 {
@@ -11,7 +11,7 @@ class VersionHandler
 
     public function __construct()
     {
-        $this->currentVersion = ConfigHandler::get("app", "CURRENT_VERSION");
+        $this->currentVersion = ConfigurationManager::get("app", "CURRENT_VERSION");
     }
 
     public function updateFramework()

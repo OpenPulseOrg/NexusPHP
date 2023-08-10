@@ -2,16 +2,30 @@
 
 namespace Nxp\Controllers\Welcome;
 
-use Nxp\Core\Templating\TemplateEngine;
 use Nxp\Core\Utils\HTTP\Request;
 use Nxp\Core\Utils\HTTP\Response;
-use Nxp\Core\Utils\API\APIRequestHandler;
 use Nxp\Core\Utils\Form\FormFactory;
+use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Error\ErrorFactory;
+use Nxp\Core\Templating\TemplateEngine;
+use Nxp\Core\Utils\API\APIRequestHandler;
 
 class WelcomeController
 {
     public function welcome()
     {
+        $factory = new ErrorFactory(Container::getInstance());
+
+
+        // 4. Creating ErrorHandler: Get an instance of ErrorHandler with its dependencies managed
+        $errorHandler = $factory->createErrorHandler();
+
+        // 5. Utilizing the ErrorHandler: Use the ErrorHandler to handle errors
+        $errorHandler->handleError("Error", null, ["Username"=>"Test User"], "ERROR");
+
+        exit();
+
+
 
         $templatePath = __DIR__ . "/../../views/Welcome/Welcome.php";
         $engine = new TemplateEngine($templatePath);

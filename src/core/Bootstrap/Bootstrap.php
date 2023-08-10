@@ -4,15 +4,11 @@ namespace Nxp\Core\Bootstrap;
 
 use Exception;
 use Nxp\Core\Hook\Hook;
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Utils\Session\Manager;
-use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Utils\Service\Container;
-use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\PluginManager\PluginLoader;
-use Nxp\Core\Utils\Error\Management;
-use Nxp\Core\Utils\Error\Sentry\Client;
-use Nxp\Core\Utils\Error\Sentry\Event;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Navigation\Router\Loader;
 use Nxp\Core\Utils\Navigation\Router\Dispatcher;
 
@@ -50,9 +46,7 @@ class Bootstrap
     {
         
         $container = Container::getInstance();
-        
-        new Management($container);
-        
+              
         $bootstrap = new self($container);
         $bootstrap->loadServices();
         $bootstrap->checkSystemTables();
@@ -137,9 +131,8 @@ class Bootstrap
      */
     private function loadConfigs()
     {
-
-        ConfigHandler::load("app");
-        ConfigHandler::load("constants");
+        ConfigurationManager::load("app");
+        ConfigurationManager::load("constants");
     }
 
     /**
@@ -160,15 +153,11 @@ class Bootstrap
                 $plugin->execute();
             }
         } catch (\Exception $e) {
-            // Handle the exception as needed
-            $queryFactory = new Query($this->container);
-            $logger = new Logger($queryFactory);
+            $factory = new ErrorFactory(Container::getInstance());
 
-            $logger->log("WARNING", "Plugin Error", [
-                "Message" => "Error Executing Plugin",
-                "Error" => $e->getMessage(),
-                "Code" => $e->getCode()
-            ]);
+            $errorHandler = $factory->createErrorHandler();
+    
+            $errorHandler->handleError("Plugin Error", null, ["Message"=>"Error Executing Plugin"], "WARNING");
 
             throw new Exception($e);
         }
@@ -181,7 +170,7 @@ class Bootstrap
      */
     public function setSystemPreferences()
     {
-        date_default_timezone_set(ConfigHandler::get("app", "TIME_ZONE"));
+        date_default_timezone_set(ConfigurationManager::get("app", "TIME_ZONE"));
         // (new ErrorHandler());
     }
 

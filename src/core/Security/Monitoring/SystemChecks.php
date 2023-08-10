@@ -3,7 +3,7 @@
 namespace Nxp\Core\Security\Monitoring;
 
 use Exception;
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Database\Factories\Table;
 
 /**
@@ -66,7 +66,7 @@ class SystemChecks
      */
     public function checkCacheTable()
     {
-        $databaseType = ConfigHandler::get("database", "DATABASE_TYPE");
+        $databaseType = ConfigurationManager::get("database", "DATABASE_TYPE");
         $tableName = 'cache';
 
 

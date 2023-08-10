@@ -4,9 +4,7 @@ namespace Nxp\Core\Security\Storage\FileSystem\Directory;
 
 use DateTime;
 use Exception;
-use Nxp\Core\Database\Factories\Query;
-use Nxp\Core\Security\Logging\Logger;
-use Nxp\Core\Utils\Navigation\Redirects;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Randomization\Generator;
 use Nxp\Core\Utils\Service\Container;
 use RecursiveDirectoryIterator;
@@ -20,6 +18,15 @@ use RecursiveIteratorIterator;
 class DirectoryManager
 {
     protected $directory;
+    protected $errorHandler;
+
+    public function __construct()
+    {
+        $container = Container::getInstance();
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
+    }
+
 
     /**
      * Creates a folder or directory.
@@ -33,12 +40,9 @@ class DirectoryManager
      *
      * @throws Exception If unable to create the directory.
      */
-    public static function createFolder($directory, $subdirs, $permissions = 0777, $recursive = true)
+    public function createFolder($directory, $subdirs, $permissions = 0777, $recursive = true)
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
-
-        if (!is_array($subdirs)) {
+       if (!is_array($subdirs)) {
             $subdirs = array($subdirs);
         }
 
@@ -49,15 +53,29 @@ class DirectoryManager
 
             if (!is_dir($newdir)) {
                 if (!mkdir($newdir, $permissions, $recursive)) {
+                    $this->errorHandler->handleError(
+                        "Unable to create directory",
+                        null,
+                        [
+                            "Message" => "Unable to create directory",
+                            "Directory" => $newdir
+                        ],
+                        "WARNING"
+                    ); 
                     throw new Exception("Unable to create directory: $newdir");
                 }
-                $logger->log("INFO", "Folder Created", [
-                    "Name" => "System",
-                    "Directory" => $directory,
-                    "Sub Directory" => json_encode($subdirs),
-                    "Permissions" => $permissions,
-                    "Recursive" => $recursive
-                ]);
+                $this->errorHandler->handleError(
+                    "Folder Created",
+                    null,
+                    [
+                        "Name" => "System",
+                        "Directory" => $directory,
+                        "Sub Directory" => json_encode($subdirs),
+                        "Permissions" => $permissions,
+                        "Recursive" => $recursive
+                    ],
+                    "INFO"
+                ); 
             }
         }
 
@@ -77,11 +95,8 @@ class DirectoryManager
      *
      * @throws Exception If unable to create the unique folder.
      */
-    public static function createUniqueFolder($directory, $prefix = "", $permissions = 0777, $recursive = true)
+    public function createUniqueFolder($directory, $prefix = "", $permissions = 0777, $recursive = true)
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
-
         $dateTime = new DateTime();
         $formattedDate = $dateTime->format('YmdHis');
         $randomString = Generator::generateRandomString();
@@ -91,15 +106,19 @@ class DirectoryManager
         if (self::createFolder($directory, $folderName, $permissions, $recursive)) {
             return $directory . DIRECTORY_SEPARATOR . $folderName;
         } else {
-            $logger->log("INFO", "Folder Creation Error", [
-                "Directory" => $directory,
-                "Folder" => $folderName,
-                "Permissions" => $permissions,
-                "Recursive" => $recursive,
-                "Message" => "Unable to create unique folder in directory"
-            ]);
-         
-            Redirects::redirectToPreviousPageOrHome();
+            $this->errorHandler->handleError(
+                "Folder Creation Error",
+                null,
+                [
+                    "Directory" => $directory,
+                    "Folder" => $folderName,
+                    "Permissions" => $permissions,
+                    "Recursive" => $recursive,
+                    "Message" => "Unable to create unique folder in directory"
+                ],
+                "WARNING"
+            ); 
+            throw new Exception("Unable to create unique folder in directory");
         }
     }
 
@@ -112,12 +131,18 @@ class DirectoryManager
      *
      * @throws Exception If the provided directory is not valid.
      */
-    public static function deleteFolder($directory)
+    public function deleteFolder($directory)
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
-
         if (!is_dir($directory)) {
+            $this->errorHandler->handleError(
+                "Invalid Directory",
+                null,
+                [
+                    "Message" => "Directory is not valid.",
+                    "Directory" => $directory,
+                ],
+                "WARNING"
+            ); 
             throw new Exception("$directory is not a valid directory");
         }
 
@@ -134,11 +159,15 @@ class DirectoryManager
         if (rmdir($directory)) {
             return true;
         } else {
-            $logger->log("INFO", "Folder Deletion Error", [
-                "Directory" => $directory,
-                "Message" => "Unable to delete directory"
-            ]);
-            Redirects::redirectToPreviousPageOrHome();
+            $this->errorHandler->handleError(
+                "Folder Deletion Error",
+                null,
+                [
+                    "Directory" => $directory,
+                    "Message" => "Unable to delete directory"
+                ],
+                "WARNING"
+            ); 
         }
     }
 
@@ -154,20 +183,20 @@ class DirectoryManager
      *
      * @throws Exception If the source directory is not valid.
      */
-    public static function copyFolder($source, $destination, $recursive = true)
+    public function copyFolder($source, $destination, $recursive = true)
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
-
         if (!is_dir($source)) {
-            $logger->log("INFO", "Folder Copy Error", [
-                "Source" => $source,
-                "Destination" => $destination,
-                "Recursive" => $recursive,
-                "Message" => "$source is not a valid directory"
-            ]);
-            
-            Redirects::redirectToPreviousPageOrHome();
+            $this->errorHandler->handleError(
+                "Folder Copy Error",
+                null,
+                [
+                    "Source" => $source,
+                    "Destination" => $destination,
+                    "Recursive" => $recursive,
+                    "Message" => "$source is not a valid directory"
+                ],
+                "WARNING"
+            ); 
         }
 
         if (!is_dir($destination)) {

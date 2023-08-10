@@ -1,7 +1,7 @@
 <?php
 namespace Nxp\Core\Database;
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use PDO;
 use PDOException;
 
@@ -62,12 +62,12 @@ class Database
 
         if (self::$pdo === null) {
             // Get database connection parameters from configuration
-            $databaseType = ConfigHandler::get('database', 'DATABASE_TYPE');
-            $host = ConfigHandler::get('database', 'DATABASE_HOST');
-            $port = ConfigHandler::get('database', 'DATABASE_PORT');
-            $dbname = ConfigHandler::get('database', 'DATABASE_NAME');
-            $username = ConfigHandler::get('database', 'DATABASE_USER');
-            $password = ConfigHandler::get('database', 'DATABASE_PASS');
+            $databaseType = ConfigurationManager::get('database', 'DATABASE_TYPE');
+            $host = ConfigurationManager::get('database', 'DATABASE_HOST');
+            $port = ConfigurationManager::get('database', 'DATABASE_PORT');
+            $dbname = ConfigurationManager::get('database', 'DATABASE_NAME');
+            $username = ConfigurationManager::get('database', 'DATABASE_USER');
+            $password = ConfigurationManager::get('database', 'DATABASE_PASS');
 
             try {
                 if ($databaseType === 'mysql') {
@@ -88,7 +88,7 @@ class Database
                     ];
                 } elseif ($databaseType === 'cockroachdb') {
                     // CockroachDB connection with cluster identifier
-                    $clusterIdentifier = ConfigHandler::get('database', 'COCKROACHDB_CLUSTER_IDENTIFIER');
+                    $clusterIdentifier = ConfigurationManager::get('database', 'COCKROACHDB_CLUSTER_IDENTIFIER');
                     $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;user=$username;password=$password;sslmode=require;sslrootcert=" . __DIR__ . '/../../storage/certs/cert3.pem';
                     $options = [
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

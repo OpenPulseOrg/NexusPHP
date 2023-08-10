@@ -3,9 +3,10 @@
 namespace Nxp\Core\Security\Storage\FileSystem\File;
 
 use Exception;
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Security\Logging\Logger;
+use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Navigation\Redirects;
 use Nxp\Core\Utils\Service\Container;
 
@@ -20,6 +21,7 @@ class FileUploader
     private $return_path;
     private $allowed_extensions;
     private $max_file_size;
+    private $errorHandler;
 
     /**
      * Class constructor.
@@ -28,8 +30,12 @@ class FileUploader
      */
     public function __construct()
     {
-        $this->allowed_extensions = ConfigHandler::get("app", "ALLOWED_FILE_TYPES");
+        $this->allowed_extensions = ConfigurationManager::get("app", "ALLOWED_FILE_TYPES");
         $this->max_file_size = $this->getMaxFileSize();
+
+        $container = Container::getInstance();
+        $factory = new ErrorFactory($container);
+        $this->errorHandler = $factory->createErrorHandler();
     }
 
     /**
@@ -93,6 +99,16 @@ class FileUploader
                 Redirects::redirectToLocation($this->return_path);
             }
         } catch (Exception $e) {
+            $this->errorHandler->handleError(
+                "Upload Error",
+                null,
+                [
+                    "Message" => $e->getMessage(),
+                    "Code" => $e->getCode()
+                ],
+                "CRITICAL"
+            );
+
             throw new Exception($e);
         }
 
@@ -126,7 +142,7 @@ class FileUploader
         }
 
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        $allowed_extensions = ConfigHandler::get("app", "ALLOWED_FILE_TYPES");
+        $allowed_extensions = ConfigurationManager::get("app", "ALLOWED_FILE_TYPES");
         if (!in_array($extension, $allowed_extensions)) {
             $this->logError("asdasddas", $file, $filename);
             return ["error" => "extensionNotAllowed", "valid" => false];
@@ -148,18 +164,20 @@ class FileUploader
      */
     private function logError($message, $file, $filename)
     {
-        $queryFactory = new Query(Container::getInstance());
-        $logger = new Logger($queryFactory);
-
-        $logger->log("CRITICAL", "Error Uploading File", [
-            "Message" => $message,
-            "Error Code" => $file['error'],
-            "File" => $file["name"],
-            "Type" => $file["type"],
-            "Extension" => pathinfo($filename, PATHINFO_EXTENSION),
-            "Allowed Extensions" => json_encode($this->allowed_extensions),
-            "Target Directory" => $this->target_dir,
-        ]);
+        $this->errorHandler->handleError(
+            "Upload Error",
+            null,
+            [
+                "Message" => $message,
+                "Error Code" => $file['error'],
+                "File" => $file["name"],
+                "Type" => $file["type"],
+                "Extension" => pathinfo($filename, PATHINFO_EXTENSION),
+                "Allowed Extensions" => json_encode($this->allowed_extensions),
+                "Target Directory" => $this->target_dir,
+            ],
+            "CRITICAL"
+        );
     }
 
     /**
@@ -170,7 +188,7 @@ class FileUploader
     private function getMaxFileSize()
     {
         $max_file_size_ini = ini_get('upload_max_filesize');
-        $max_file_size_config = ConfigHandler::get("app", "MAX_ALLOWED_FILE_SIZE");
+        $max_file_size_config = ConfigurationManager::get("app", "MAX_ALLOWED_FILE_SIZE");
 
         if ($max_file_size_ini === false) {
             // php.ini does not define upload_max_filesize, fallback to configuration

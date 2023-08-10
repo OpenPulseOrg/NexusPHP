@@ -1,6 +1,6 @@
 <?php
 
-use Nxp\Core\Config\ConfigHandler;
+use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Database\Database;
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
