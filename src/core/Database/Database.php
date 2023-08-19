@@ -1,11 +1,12 @@
 <?php
 namespace Nxp\Core\Database;
 
-use Nxp\Core\Config\ConfigurationManager;
 use PDO;
 use PDOException;
+use Nxp\Core\Common\Patterns\Singleton;
+use Nxp\Core\Config\ConfigurationManager;
 
-class Database
+class Database extends Singleton
 {
     /**
      * @var PDO|null The PDO instance used for the database connection.
@@ -20,25 +21,12 @@ class Database
     /**
      * @var Database|null The singleton instance of the Database class.
      */
-    public static $instance = null;
+    private static $instance = null;
 
     /**
      * Private constructor to prevent direct object creation.
      */
     private function __construct(){}
-
-    /**
-     * Get the singleton instance of the Database class.
-     *
-     * @return Database The instance of the Database class.
-     */
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
 
     /**
      * Establishes a database connection using PDO.
@@ -85,14 +73,6 @@ class Database
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                         PDO::ATTR_PERSISTENT => true,
-                    ];
-                } elseif ($databaseType === 'cockroachdb') {
-                    // CockroachDB connection with cluster identifier
-                    $clusterIdentifier = ConfigurationManager::get('database', 'COCKROACHDB_CLUSTER_IDENTIFIER');
-                    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;user=$username;password=$password;sslmode=require;sslrootcert=" . __DIR__ . '/../../storage/certs/cert3.pem';
-                    $options = [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                     ];
                 } else {
                     throw new PDOException("Invalid database type: $databaseType");

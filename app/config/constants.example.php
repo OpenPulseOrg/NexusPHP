@@ -1,25 +1,7 @@
 <?php
 
-use Nxp\Core\Config\ConfigurationManager;
-
-// Root Constant
-define("ROOT", __DIR__ . "/../../");
-
-// Base Constants
-define("BASE_ROOT_DIR", ROOT);
-
-// Routes
-define("ROUTE_PATH", ROOT . "/app/routes/");
-
-// Config Constants
-define("CONFIG_ROOT_PATH", ROOT . "app/config/");
-
-// Plugin Constants
-define("PLUGIN_ROOT_PATH", ROOT . "src/plugins");
-
-// Views Constants
-define("VIEWS_ROOT_PATH", ROOT . "app/views/");
-
-// Backup Constants
-define("DEFAULT_BACKUP_LOCATION_ROOT", ROOT . "app/" . ConfigurationManager::get("app", "BACKUP_ZIP_LOCATION"));
-
+/**
+ * Within in this file, you are able to set your own constants.
+ * All of the below constants are loaded automatically during bootstrap startup.
+ * Please refer to the PHP documentation on how to use constants. 
+ */

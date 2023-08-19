@@ -2,8 +2,8 @@
 
 namespace Nxp\Core\Utils\Error\Services;
 
+use Nxp\Core\Database\Query;
 use Nxp\Core\Security\Logging\Logger;
-use Nxp\Core\Database\Factories\Query;
 
 class LoggerService
 {

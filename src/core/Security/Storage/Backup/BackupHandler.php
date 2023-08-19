@@ -3,7 +3,8 @@
 namespace Nxp\Core\Security\Storage\Backup;
 
 use Nxp\Core\Utils\Error\ErrorFactory;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
+use Nxp\Core\Utils\Service\Container\Locator\Locator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ZipArchive;
@@ -31,8 +32,9 @@ class BackupHandler
      */
     public function __construct($backupDir = null, $rootDir = null, $excludedFolders = [])
     {
+        $locator = Locator::getInstance();
         if ($backupDir === null) {
-            $backupDir = DEFAULT_BACKUP_LOCATION_ROOT; // Default backup directory
+            $backupDir = $locator->getPath("core", "backup"); // Default backup directory
         }
         $this->backupDir = $backupDir;
 

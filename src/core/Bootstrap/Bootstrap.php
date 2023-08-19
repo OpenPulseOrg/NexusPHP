@@ -3,16 +3,19 @@
 namespace Nxp\Core\Bootstrap;
 
 use Exception;
-use Nxp\Core\Hook\Hook;
-use Nxp\Core\Config\ConfigurationManager;
+use Nxp\Core\Plugin\Plugin;
 use Nxp\Core\Utils\Session\Manager;
-use Nxp\Core\Utils\Service\Container;
-use Nxp\Core\PluginManager\PluginLoader;
+use Nxp\Core\Utils\Service\Container\Container;
+use Nxp\Core\Plugin\Managers\Manifest;
 use Nxp\Core\Utils\Error\ErrorFactory;
+use Nxp\Core\Plugin\Loader\PluginLoader;
+use Nxp\Core\Config\ConfigurationManager;
+use Nxp\Core\Plugin\Handler\ErrorHandler;
+use Nxp\Core\Utils\Localization\Translator;
+use Nxp\Core\Utils\Service\Container\Locator\Locator;
+use Nxp\Core\Plugin\Loader\ControllerLoader;
 use Nxp\Core\Utils\Navigation\Router\Loader;
 use Nxp\Core\Utils\Navigation\Router\Dispatcher;
-
-use function Sentry\init;
 
 /**
  * Bootstrap class for initializing the system, loading configurations and plugins,
@@ -28,6 +31,11 @@ class Bootstrap
     private $container;
 
     /**
+     * @var BootstrapInterface|null
+     */
+    private $userBootstrap;
+
+    /**
      * Bootstrap constructor.
      *
      * @param Container $container The dependency injection container.
@@ -35,6 +43,11 @@ class Bootstrap
     public function __construct(Container $container)
     {
         $this->container = $container;
+
+        // Initialize the user bootstrap if it exists
+        if (class_exists('\Nxp\App\config\bootstrap')) {
+            $this->userBootstrap = new \Nxp\App\config\bootstrap();
+        }
     }
 
     /**
@@ -44,30 +57,68 @@ class Bootstrap
      */
     public static function init()
     {
-        
         $container = Container::getInstance();
-              
-        $bootstrap = new self($container);
-        $bootstrap->loadServices();
-        $bootstrap->checkSystemTables();
-        $bootstrap->cleanServerHeaders();
-        $bootstrap->setSystemPreferences();
-        $bootstrap->loadConfigs();
-        $bootstrap->loadPlugins();
-        $bootstrap->startSession();
-        $bootstrap->trackPage();
-        $bootstrap->loadRoutes();
-        $bootstrap->executeHooks();
-    }
 
-    /**
-     * Executes the hooks after the routes are loaded.
-     *
-     * @return void
-     */
-    private function executeHooks()
-    {
-        Hook::executeHook("after_route");
+        $bootstrap = new self($container);
+
+        // Execute the user's pre-init logic, if provided
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->preInit();
+        }
+
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->preInit();
+        }
+
+        $bootstrap->loadServices();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postLoadServices();
+        }
+
+        $bootstrap->checkSystemTables();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postSystemChecks();
+        }
+
+        $bootstrap->cleanServerHeaders();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postCleanHeaders();
+        }
+
+        $bootstrap->setSystemPreferences();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postSetPreferences();
+        }
+
+        $bootstrap->loadConfigs();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postLoadConfigs();
+        }
+
+        $bootstrap->loadPlugins();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postLoadPlugins();
+        }
+
+        $bootstrap->startSession();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postSessionStart();
+        }
+
+        $bootstrap->trackPage();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postTrackPage();
+        }
+
+        $bootstrap->loadRoutes();
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postRoute();
+        }
+
+        // Execute the user's post-init logic, if provided
+        if ($bootstrap->userBootstrap) {
+            $bootstrap->userBootstrap->postInit();
+        }
     }
 
     /**
@@ -77,8 +128,10 @@ class Bootstrap
      */
     private function loadServices()
     {
-        $databaseServices = require __DIR__ . "/../Utils/Service/Containers/database.service.php";
-        $coreServices = require __DIR__ . "/../Utils/Service/Containers/core.service.php";
+        $locator = Locator::getInstance();
+
+        $databaseServices = require $locator->getPath("services", "database");
+        $coreServices = require $locator->getPath("services", "core");
 
         $this->container->loadConfig($databaseServices);
         $this->container->loadConfig($coreServices);
@@ -113,11 +166,13 @@ class Bootstrap
      */
     private function loadRoutes()
     {
+        $locator = Locator::getInstance();
+
         // Load routes from web.php
-        Loader::loadFromFile(__DIR__ . "/../../../app/routes/web.php");
+        Loader::loadFromFile($locator->getPath("core", "routes") . "/web.php");
 
         // Load routes from api.php
-        Loader::loadFromFile(__DIR__ . "/../../../app/routes/api.php");
+        Loader::loadFromFile($locator->getPath("core", "routes") . "/api.php");
 
         // Dispatch the request to the appropriate route
         Dispatcher::dispatch();
@@ -143,11 +198,12 @@ class Bootstrap
      */
     private function loadPlugins()
     {
-        $pluginLoader = new PluginLoader();
+        $locator = Locator::getInstance();
+        $pluginLoaderManager = new PluginLoader(new Manifest, new ErrorHandler, new ControllerLoader);
+        $pluginManager = new Plugin($pluginLoaderManager);
 
         try {
-            $plugins = $pluginLoader->loadPlugins();
-            $plugins = $pluginLoader->getPlugins();
+            $plugins = $pluginManager->loadPlugins();
 
             foreach ($plugins as $plugin) {
                 $plugin->execute();
@@ -156,12 +212,13 @@ class Bootstrap
             $factory = new ErrorFactory(Container::getInstance());
 
             $errorHandler = $factory->createErrorHandler();
-    
-            $errorHandler->handleError("Plugin Error", null, ["Message"=>"Error Executing Plugin"], "WARNING");
 
-            throw new Exception($e);
+            $errorHandler->handleError("Plugin Error", null, ["Message" => "Error Executing Plugin"], "WARNING");
+
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
     }
+
 
     /**
      * Sets the system preferences such as the default timezone.
@@ -170,7 +227,18 @@ class Bootstrap
      */
     public function setSystemPreferences()
     {
-        date_default_timezone_set(ConfigurationManager::get("app", "TIME_ZONE"));
+        // Set timezone
+        date_default_timezone_set(ConfigurationManager::get("app", "system.time_zone"));
+
+        $langauge = ConfigurationManager::get("app", "system.default_language");
+
+        // Initialize translator
+        if (empty($langauge)) {
+            Translator::initialize("en", "en");
+        } else {
+            Translator::initialize(ConfigurationManager::get("app", "system.default_language"), "en");
+        }
+
         // (new ErrorHandler());
     }
 

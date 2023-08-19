@@ -8,7 +8,7 @@ use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Security\Logging\Logger;
 use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Navigation\Redirects;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 
 /**
  * FileUploader class for handling file uploads.
@@ -30,7 +30,7 @@ class FileUploader
      */
     public function __construct()
     {
-        $this->allowed_extensions = ConfigurationManager::get("app", "ALLOWED_FILE_TYPES");
+        $this->allowed_extensions = ConfigurationManager::get("app", "file_upload.allowed_types");
         $this->max_file_size = $this->getMaxFileSize();
 
         $container = Container::getInstance();

@@ -8,7 +8,7 @@ use Defuse\Crypto\{
     Key
 };
 use Nxp\Core\Utils\Error\ErrorFactory;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 
 /**
  * Encryptor class provides methods for encrypting and decrypting messages using the Defuse Crypto library.

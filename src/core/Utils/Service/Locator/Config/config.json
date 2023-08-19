@@ -1,0 +1,35 @@
+{
+    "paths": {
+        "core": {
+            "routes": "/app/routes",
+            "controllers": "/app/controllers",
+            "middleware": "/app/middlewares",
+            "models": "/app/models",
+            "views": "/app/views",
+            "config": "/app/config",
+            "logs": "/logs",
+            "backup": "/src/data/backup"
+        },
+        "assets": {
+            "audio": "/storage/assets/audio",
+            "css": "/storage/assets/css",
+            "fonts": "/storage/assets/fonts",
+            "img": "/storage/assets/img",
+            "js": "/storage/assets/js",
+            "media": "/storage/assets/media",
+            "scss": "/storage/assets/scss",
+            "videos": "/storage/assets/videos"
+        },
+        "services": {
+            "database": "/src/core/Utils/Service/Containers/database.service.php",
+            "core": "/src/core/Utils/Service/Containers/core.service.php"
+        },
+        "langauge": {
+            "root": "/lang/{language}"
+        },
+        "database": {},
+        "plugin": {
+            "root": "/src/plugins"
+        }
+    }
+}

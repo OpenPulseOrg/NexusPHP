@@ -5,6 +5,7 @@ namespace Nxp\Core\Templating\Parser;
 
 use Nxp\Core\Templating\Handler\Filter;
 use Nxp\Core\Templating\Handler\Includer;
+use Nxp\Core\Utils\Localization\Translator;
 
 class Parser
 {
@@ -117,15 +118,18 @@ class Parser
 
         $content = $this->parseIfStatements($content);
 
-        // // Apply filters to variables
+        // Apply filters to variables
         $content = preg_replace_callback('/\\{\\{\\s*(.+?)\\s*\\}\\}/', function ($matches) {
             return $this->parseFilters($matches[1]);
         }, $content);
 
-        // // Parse method calls
+        // Parse Translations
+        $content = $this->parseTranslations($content);  
+
+        // Parse method calls
         $content = preg_replace_callback('/{%\s*(.+?)\s*%}/', [$this, 'parseMethods'], $content);
 
-        // // Parse variables
+        // Parse variables
         $content = preg_replace_callback('/{{\s*(.+?)\s*}}/', [$this, 'parseVariables'], $content);
 
         return $content;
@@ -178,6 +182,15 @@ class Parser
 
             // If none of the conditions were true, return the else content
             return $this->parse($elseContent);
+        }, $content);
+    }
+
+    private function parseTranslations($content)
+    {
+        $pattern = '/{%\\s*t\\s+"(.*?)"\\s*%}/'; // Matches {% t "translation_key" %}
+
+        return preg_replace_callback($pattern, function ($matches) {
+            return Translator::get($matches[1]);
         }, $content);
     }
 }

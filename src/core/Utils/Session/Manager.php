@@ -2,12 +2,14 @@
 
 namespace Nxp\Core\Utils\Session;
 
+use Nxp\Core\Common\Patterns\Singleton;
+
 /**
  * Class for managing session data.
  *
  * @package Nxp\Core\Utils\Session
  */
-class Manager
+class Manager extends Singleton
 {
     /**
      * @var bool Read-only flag for flash messages.
@@ -28,19 +30,6 @@ class Manager
      * @var Manager|null Singleton instance of the Manager class
      */
     private static ?Manager $instance = null;
-
-    /**
-     * Retrieves the singleton instance of the Manager class.
-     *
-     * @return Manager The singleton instance.
-     */
-    public static function getInstance(): Manager
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
 
     /**
      * Starts a session, handles flash messages, and manages session timeout.

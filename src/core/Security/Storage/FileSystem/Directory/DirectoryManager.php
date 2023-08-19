@@ -6,7 +6,7 @@ use DateTime;
 use Exception;
 use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Randomization\Generator;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 

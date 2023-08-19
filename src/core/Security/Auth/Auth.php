@@ -2,7 +2,7 @@
 
 namespace Nxp\Core\Security\Auth;
 
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 
 class Auth
 {

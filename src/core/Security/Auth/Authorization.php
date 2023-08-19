@@ -4,7 +4,7 @@ namespace Nxp\Core\Security\Auth;
 
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Security\Cleaning\Sanitizer;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 use Nxp\Core\Utils\Session\Manager;
 
 class Authorization

@@ -3,6 +3,7 @@
 namespace Nxp\Core\Templating\Handler;
 
 use Nxp\Core\Templating\Parser\Parser;
+use Nxp\Core\Utils\Service\Container\Locator\Locator;
 
 class Includer
 {
@@ -18,7 +19,8 @@ class Includer
     public function handle($content)
     {
         return preg_replace_callback('/{%\s*include\s+\'(.+?)\'\s*%}/', function ($matches) {
-            $includePath = __DIR__ . "/../../../../app/views/" . $matches[1];
+            $locator = Locator::getInstance();
+            $includePath = $locator->getPath("core", "views") . "/$matches[1]";
             if (file_exists($includePath)) {
                 $includedContent = file_get_contents($includePath);
                 return $this->parser->parse($includedContent); // Use the existing parser to parse the included template

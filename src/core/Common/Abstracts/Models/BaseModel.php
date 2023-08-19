@@ -2,7 +2,7 @@
 
 namespace Nxp\Core\Common\Abstracts\Models;
 
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 
 abstract class BaseModel
 {

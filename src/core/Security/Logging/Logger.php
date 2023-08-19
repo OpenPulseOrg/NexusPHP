@@ -2,9 +2,10 @@
 
 namespace Nxp\Core\Security\Logging;
 
-use Nxp\Core\Database\Factories\Query as FactoriesQuery;
-use Nxp\Core\Utils\Manipulator\DateManipulator;
+use Nxp\Core\Database\Query;
 use Nxp\Core\Utils\Randomization\Generator;
+use Nxp\Core\Utils\Service\Container\Locator\Locator;
+use Nxp\Core\Utils\Manipulator\DateManipulator;
 
 /**
  * Logger class provides methods for logging messages to a database table or local .log files.
@@ -38,7 +39,7 @@ class Logger
      *
      * @return void
      */
-    public function __construct(FactoriesQuery $queryFactory, $logDestination = self::LOG_DESTINATION_FILES)
+    public function __construct(Query $queryFactory, $logDestination = self::LOG_DESTINATION_FILES)
     {
       
         $this->queryFactory = $queryFactory;
@@ -128,7 +129,9 @@ class Logger
      */
     private function getLogFile()
     {
-        $logDir = __DIR__ . "/../../../../logs/";
+        $locator = Locator::getInstance();
+
+        $logDir = $locator->getPath("core", "logs");
 
         if(!is_dir($logDir)){
             mkdir($logDir);

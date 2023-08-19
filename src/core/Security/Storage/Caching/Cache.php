@@ -1,10 +1,11 @@
 <?php
-
 namespace Nxp\Core\Security\Storage\Caching;
 
 use Exception;
+use Locale;
 use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Security\Cryptography\Hash\Hasher;
+use Nxp\Core\Utils\Service\Container\Locator\Locator;
 
 /**
  * The Cache class provides functionality for caching and retrieving data securely.
@@ -25,6 +26,7 @@ class Cache
      */
     public function __construct()
     {
+        $locator = Locator::getInstance();
         $cacheDir = __DIR__ . "/../../../../cache";
 
         if (!is_dir($cacheDir)) {

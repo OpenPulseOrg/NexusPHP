@@ -11,7 +11,7 @@ class VersionHandler
 
     public function __construct()
     {
-        $this->currentVersion = ConfigurationManager::get("app", "CURRENT_VERSION");
+        $this->currentVersion = VersionManager::getVersion();
     }
 
     public function updateFramework()

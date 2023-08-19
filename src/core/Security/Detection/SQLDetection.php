@@ -3,7 +3,7 @@
 namespace Nxp\Core\Security\Detection;
 
 use Nxp\Core\Utils\Error\ErrorFactory;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 
 class SQLDetection
 {

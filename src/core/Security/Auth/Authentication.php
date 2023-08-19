@@ -5,7 +5,7 @@ namespace Nxp\Core\Security\Auth;
 use Nxp\Core\Database\Factories\Query;
 use Nxp\Core\Database\Factories\Table;
 use Nxp\Core\Database\Factories\Transaction;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
 use Nxp\Core\Utils\Session\Manager;
 
 class Authentication

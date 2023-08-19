@@ -15,7 +15,7 @@ class ErrorFactory
     public function __construct($container)
     {
         $this->container = $container;
-        $this->useSentry = ConfigurationManager::get("app", "USE_SENTRY");
+        $this->useSentry = ConfigurationManager::get("app", "sentry.use");
     }
 
     public function createLoggerService(): LoggerService

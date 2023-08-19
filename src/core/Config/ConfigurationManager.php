@@ -4,7 +4,8 @@ namespace Nxp\Core\Config;
 
 use Exception;
 use Nxp\Core\Utils\Error\ErrorFactory;
-use Nxp\Core\Utils\Service\Container;
+use Nxp\Core\Utils\Service\Container\Container;
+use Nxp\Core\Utils\Service\Container\Locator\Locator;
 
 /**
  * The ConfigurationManager class provides methods for loading and retrieving configuration files.
@@ -28,8 +29,10 @@ class ConfigurationManager
      */
     public static function load($filename)
     {
+        $locator = Locator::getInstance();
+
         // Construct the path to the configuration file.
-        $path = __DIR__ . '/../../../app/config/' . $filename . '.php';
+        $path = $locator->getPath("core", "config") . "/{$filename}.php";
 
         // Check if the configuration file exists.
         if (file_exists($path)) {
@@ -42,8 +45,8 @@ class ConfigurationManager
             $factory = new ErrorFactory(Container::getInstance());
 
             $errorHandler = $factory->createErrorHandler();
-    
-            $errorHandler->handleError("Config Handler Error", null, ["Message"=>"Config file not found", "Filename"=>$filename], "CRITICAL");
+
+            $errorHandler->handleError("Config Handler Error", null, ["Message" => "Config file not found", "Filename" => $filename], "CRITICAL");
 
             throw new Exception("$filename was not found in the config handler!");
         }
@@ -74,9 +77,18 @@ class ConfigurationManager
         if ($key === null) {
             return $config;
         } else {
-            // If the key is found in the configuration file, return its value.
-            // Otherwise, return the default value.
-            return array_key_exists($key, $config) ? $config[$key] : $default;
+            // Split the key into category and subkey based on the delimiter (assuming ".").
+            $parts = explode(".", $key);
+            $category = $parts[0] ?? null;
+            $subkey = $parts[1] ?? null;
+
+            if ($category && $subkey) {
+                // Check if category and subkey both exist in the configuration.
+                return $config[$category][$subkey] ?? $default;
+            } else {
+                // If only category is provided, return the whole category or default value.
+                return $config[$category] ?? $default;
+            }
         }
     }
 }

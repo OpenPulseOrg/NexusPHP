@@ -3,8 +3,8 @@
 namespace Nxp\Core\Security\Monitoring;
 
 use Exception;
+use Nxp\Core\Database\Table;
 use Nxp\Core\Config\ConfigurationManager;
-use Nxp\Core\Database\Factories\Table;
 
 /**
  * SystemChecks class provides methods for checking and creating necessary tables in the database.
@@ -34,8 +34,9 @@ class SystemChecks
      */
     public function checkTables()
     {
-        $this->checkLogsTable();
-        $this->checkCacheTable();
+        // TO-DO
+        // $this->checkLogsTable();
+        // $this->checkCacheTable();
     }
 
     /**
