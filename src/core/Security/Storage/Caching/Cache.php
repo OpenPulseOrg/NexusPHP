@@ -5,8 +5,7 @@ use Exception;
 use Locale;
 use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Security\Cryptography\Hash\Hasher;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
-
+use Nxp\Core\Utils\Service\Locator\Locator;
 /**
  * The Cache class provides functionality for caching and retrieving data securely.
  * Data is serialized, hashed, and stored in cache files in the cache directory.

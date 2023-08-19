@@ -1,6 +1,6 @@
 <?php
 
-namespace Nxp\Core\Utils\Service\Container\Locator;
+namespace Nxp\Core\Utils\Service\Locator;
 
 use Nxp\Core\Common\Patterns\Singleton;
 
@@ -10,7 +10,7 @@ class Locator extends Singleton
     private $config;
     private $rootDir;
 
-    private function __construct()
+    protected function __construct()
     {
         $this->rootDir = dirname(__DIR__, 5);
         $this->loadConfig();

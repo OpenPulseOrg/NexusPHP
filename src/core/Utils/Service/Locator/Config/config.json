@@ -21,8 +21,8 @@
             "videos": "/storage/assets/videos"
         },
         "services": {
-            "database": "/src/core/Utils/Service/Containers/database.service.php",
-            "core": "/src/core/Utils/Service/Containers/core.service.php"
+            "database": "/src/core/Utils/Service/Container/Containers/database.service.php",
+            "core": "/src/core/Utils/Service/Container/Containers/core.service.php"
         },
         "langauge": {
             "root": "/lang/{language}"

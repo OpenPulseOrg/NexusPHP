@@ -4,7 +4,7 @@ namespace Nxp\Core\Security\Logging;
 
 use Nxp\Core\Database\Query;
 use Nxp\Core\Utils\Randomization\Generator;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
+use Nxp\Core\Utils\Service\Locator\Locator;
 use Nxp\Core\Utils\Manipulator\DateManipulator;
 
 /**
@@ -41,7 +41,6 @@ class Logger
      */
     public function __construct(Query $queryFactory, $logDestination = self::LOG_DESTINATION_FILES)
     {
-      
         $this->queryFactory = $queryFactory;
         $this->logDestination = $logDestination;
 
@@ -130,15 +129,16 @@ class Logger
     private function getLogFile()
     {
         $locator = Locator::getInstance();
-
+    
         $logDir = $locator->getPath("core", "logs");
-
+    
         if(!is_dir($logDir)){
-            mkdir($logDir);
+            mkdir($logDir, 0755, true); // Note the recursive parameter set to true
         }
         
-        return $logDir . DateManipulator::getCurrentDate() . ".log";
+        return $logDir . '/' . DateManipulator::getCurrentDate() . ".log";
     }
+    
 
     /**
      * Check if a new date has started and rotate the log file accordingly.

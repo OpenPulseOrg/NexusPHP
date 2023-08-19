@@ -3,8 +3,7 @@
 namespace Nxp\Core\Plugin;
 
 use Nxp\Core\Plugin\Loader\PluginLoader;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
-
+use Nxp\Core\Utils\Service\Locator\Locator;
 class Plugin
 {
     private $pluginLoaderManager;

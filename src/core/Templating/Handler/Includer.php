@@ -3,8 +3,7 @@
 namespace Nxp\Core\Templating\Handler;
 
 use Nxp\Core\Templating\Parser\Parser;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
-
+use Nxp\Core\Utils\Service\Locator\Locator;
 class Includer
 {
     private $variables;

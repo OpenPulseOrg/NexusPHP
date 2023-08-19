@@ -2,8 +2,7 @@
 
 namespace Nxp\Core\Utils\Assets;
 
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
-use Nxp\Core\Utils\Validation\Validation;
+use Nxp\Core\Utils\Service\Locator\Locator;use Nxp\Core\Utils\Validation\Validation;
 
 class AssetLoader
 {

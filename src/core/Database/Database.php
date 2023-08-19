@@ -24,11 +24,6 @@ class Database extends Singleton
     private static $instance = null;
 
     /**
-     * Private constructor to prevent direct object creation.
-     */
-    private function __construct(){}
-
-    /**
      * Establishes a database connection using PDO.
      *
      * @return PDO The PDO instance for the established database connection.

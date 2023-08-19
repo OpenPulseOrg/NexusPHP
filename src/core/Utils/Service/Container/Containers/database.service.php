@@ -2,6 +2,7 @@
 
 use Nxp\Core\Database\Query;
 use Nxp\Core\Database\Table;
+use Nxp\Core\Database\Database;
 use Sentry\Tracing\Transaction;
 
 

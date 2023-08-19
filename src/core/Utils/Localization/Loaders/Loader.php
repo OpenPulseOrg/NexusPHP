@@ -5,8 +5,8 @@ namespace Nxp\Core\Utils\Localization\Loaders;
 use Exception;
 use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Utils\Localization\Managers\Crowdin\CrowdinManager;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
-
+use Nxp\Core\Utils\Localization\Managers\Crowdin\Manager;
+use Nxp\Core\Utils\Service\Locator\Locator;
 class Loader
 {
     public function loadFromFile($language)
@@ -60,7 +60,7 @@ class Loader
 
     public function loadFromCrowdin($language)
     {
-        $crowdin = new CrowdinManager(ConfigurationManager::get("app", "crowdin.project_id"), ConfigurationManager::get("app", "crowdin.api_key"));
+        $crowdin = new Manager(ConfigurationManager::get("app", "crowdin.project_id"), ConfigurationManager::get("app", "crowdin.api_key"));
         return $crowdin->fetchTranslations($language);
     }
 }

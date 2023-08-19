@@ -5,16 +5,16 @@ namespace Nxp\Core\Bootstrap;
 use Exception;
 use Nxp\Core\Plugin\Plugin;
 use Nxp\Core\Utils\Session\Manager;
-use Nxp\Core\Utils\Service\Container\Container;
 use Nxp\Core\Plugin\Managers\Manifest;
 use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Plugin\Loader\PluginLoader;
 use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Plugin\Handler\ErrorHandler;
 use Nxp\Core\Utils\Localization\Translator;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
+use Nxp\Core\Utils\Service\Locator\Locator;
 use Nxp\Core\Plugin\Loader\ControllerLoader;
 use Nxp\Core\Utils\Navigation\Router\Loader;
+use Nxp\Core\Utils\Service\Container\Container;
 use Nxp\Core\Utils\Navigation\Router\Dispatcher;
 
 /**

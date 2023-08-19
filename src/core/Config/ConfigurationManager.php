@@ -5,8 +5,7 @@ namespace Nxp\Core\Config;
 use Exception;
 use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Utils\Service\Container\Container;
-use Nxp\Core\Utils\Service\Container\Locator\Locator;
-
+use Nxp\Core\Utils\Service\Locator\Locator;
 /**
  * The ConfigurationManager class provides methods for loading and retrieving configuration files.
  *
