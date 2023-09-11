@@ -9,10 +9,10 @@
  * @return array An associative array containing the configuration settings for the database connection.
  */
 return array(
-    "DATABASE_TYPE" => "mysql", // Select SQL driver (mysql, pgsql, cockroachdb)
+    "DATABASE_TYPE" => "mysql", // Select SQL driver (mysql, pgsql)
     "DATABASE_HOST" => "localhost", // The host address for the database server.
     "DATABASE_USER" => "root", // The username for the database user.
     "DATABASE_PASS" => "", // The password for the database user.
     "DATABASE_NAME" => "database_name", // The name of the database to connect to.
-    "DATABASE_PORT" => "3306", // The port number for the database connection.
+    "DATABASE_PORT" => 3306, // The port number for the database connection.
 );

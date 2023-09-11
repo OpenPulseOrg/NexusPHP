@@ -10,6 +10,7 @@ use Nxp\Core\Utils\Error\ErrorFactory;
 use Nxp\Core\Plugin\Loader\PluginLoader;
 use Nxp\Core\Config\ConfigurationManager;
 use Nxp\Core\Plugin\Handler\ErrorHandler;
+use Nxp\Core\Utils\Options\OptionResolver;
 use Nxp\Core\Utils\Localization\Translator;
 use Nxp\Core\Utils\Service\Locator\Locator;
 use Nxp\Core\Plugin\Loader\ControllerLoader;
@@ -130,9 +131,37 @@ class Bootstrap
     {
         $locator = Locator::getInstance();
 
+        // Load configurations
+        $databaseConfig = require $locator->getPath("config", "database");
+        $coreConfig = require $locator->getPath("config", "app");
+
+        // Validate the database configuration using OptionResolver
+        $databaseResolver = new OptionResolver();
+        $databaseResolver->setAllowedTypes('DATABASE_PORT', 'integer');
+        $databaseResolver->setAllowedValues('DATABASE_TYPE', ['mysql', 'pgsql']);
+        $validatedDatabaseConfig = $databaseResolver->resolve($databaseConfig);
+
+        // Validate the coreConfig using OptionResolver
+        $coreResolver = new OptionResolver();
+        $coreResolver->setAllowedTypes('file_upload.max_size', 'integer');
+        $coreResolver->setAllowedTypes('file_upload.max_filename_length', 'integer');
+        $coreResolver->setAllowedTypes('file_upload.max_retries', 'integer');
+        $coreResolver->setAllowedTypes('file_upload.retry_delay', 'integer');
+        $coreResolver->setAllowedTypes('redis.port', 'integer');
+        $coreResolver->setAllowedTypes('redis.use', 'boolean');
+        $coreResolver->setAllowedTypes('sentry.use', 'boolean');
+        
+        $validatedCoreConfig = $coreResolver->resolve($coreConfig);
+
+        // Load and validate services
         $databaseServices = require $locator->getPath("services", "database");
         $coreServices = require $locator->getPath("services", "core");
 
+        // Here, you might want to validate service definitions if needed
+
+        // // Load the validated configurations and services into the container
+        $this->container->loadConfig($validatedDatabaseConfig);
+        $this->container->loadConfig($validatedCoreConfig);
         $this->container->loadConfig($databaseServices);
         $this->container->loadConfig($coreServices);
     }

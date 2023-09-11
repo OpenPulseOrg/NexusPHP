@@ -27,16 +27,11 @@ class Hasher
         $this->passphrase = $passphrase;
     }
 
-    /**
-     * Hash the provided data using AES-256-GCM encryption.
-     *
-     * @param string $data The data to be hashed.
-     * @return string The hashed data.
-     */
     public function hash($data)
     {
         $ivSize = openssl_cipher_iv_length($this->encryptionMethod);
         $iv = openssl_random_pseudo_bytes($ivSize);
+
         $encryptedData = openssl_encrypt($data, $this->encryptionMethod, $this->encryptionKey, OPENSSL_RAW_DATA, $iv, $tag);
 
         // Concatenate salt, IV, encrypted data, and authentication tag.
@@ -45,38 +40,32 @@ class Hasher
         return $hash;
     }
 
-    /**
-     * Unhash the provided hash to retrieve the original data using AES-256-GCM decryption.
-     *
-     * @param string $hash The hash to be unhashed.
-     * @return string|false The original data, or false if unhashing fails (e.g., due to incorrect passphrase).
-     */
     public function unhash($hash)
     {
         $data = base64_decode($hash);
 
         $saltSize = 16; // Salt size in bytes.
-
         $ivSize = openssl_cipher_iv_length($this->encryptionMethod);
-
-        // Extract the salt, IV, encrypted data, and authentication tag from the binary data.
-        $kdfSalt = substr($data, 0, $saltSize);
-
-        $iv = substr($data, $saltSize, $ivSize);
-
-        $encryptedDataWithTag = substr($data, $saltSize + $ivSize);
-
         $tagSize = 16; // GCM tag size is 16 bytes.
 
-        $encryptedData = substr($encryptedDataWithTag, 0, -$tagSize);
+        // Ensure that the provided data length matches the expected length
+        if (strlen($data) < $saltSize + $ivSize + $tagSize) {
+            return false;
+        }
 
-        $tag = substr($encryptedDataWithTag, -$tagSize);
+        $kdfSalt = substr($data, 0, $saltSize);
+        $iv = substr($data, $saltSize, $ivSize);
+        $encryptedData = substr($data, $saltSize + $ivSize, strlen($data) - $saltSize - $ivSize - $tagSize);
+        $tag = substr($data, -$tagSize);
 
-        // Re-derive the encryption key using the extracted salt.
         $encryptionKey = hash('sha256', $this->passphrase . $kdfSalt, true);
 
-        // Decrypt the data using the derived key and provided IV and authentication tag.
         $decryptedData = openssl_decrypt($encryptedData, $this->encryptionMethod, $encryptionKey, OPENSSL_RAW_DATA, $iv, $tag);
+
+        if ($decryptedData === false) {
+            // Decryption failed, possibly due to wrong key or tampered data.
+            return false;
+        }
 
         return $decryptedData;
     }

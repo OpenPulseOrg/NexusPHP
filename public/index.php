@@ -54,6 +54,11 @@ try {
         if (!file_exists($filePath)) {
             if (file_exists($exampleFilePath)) {
                 rename($exampleFilePath, $filePath);
+
+                // Check if the renamed file is 'keys.php' to update its contents
+                if ($fileName == 'keys') {
+                    updateKeysFile($filePath);
+                }
             } else {
                 throw new Exception("Required config file '$fileName.php' is missing. Rename '$fileName.example.php' to '$fileName.php'.");
             }
@@ -71,4 +76,44 @@ try {
     echo '<h1>An Error Occurred</h1>';
     echo '<p>' . $e->getMessage() . '</p>';
     echo '</div>';
+}
+
+/**
+ * Updates the keys.php config file with random key values.
+ * 
+ * @param string $filePath The path to the keys.php file.
+ */
+function updateKeysFile($filePath)
+{
+    // Read the content of the file
+    $content = file_get_contents($filePath);
+
+    // Define the keys that need to be updated with their respective placeholders
+    $keysToUpdate = [
+        "CIPHER_KEY" => "your_cipher_key_here",
+        "SIGNING_KEY" => "your_signing_key_here",
+        "API_KEY" => "your_api_key_here",
+        "SECRET_KEY" => "your_secret_key_here",
+        "PASSWORD_SALT" => "your_password_salt_here",
+        "PRIVATE_KEY_PEM" => "your_private_key_in_pem_format_here",
+        "PUBLIC_KEY_PEM" => "your_public_key_in_pem_format_here",
+        "API_SECRET" => "your_api_secret_here",
+        "REFRESH_TOKEN_KEY" => "your_refresh_token_key_here",
+        "ACCESS_TOKEN_KEY" => "your_access_token_key_here",
+        "SESSION_KEY" => "your_session_key_here",
+        "OAUTH_CONSUMER_KEY" => "your_oauth_consumer_key_here",
+        "OAUTH_CONSUMER_SECRET" => "your_oauth_consumer_secret_here",
+        "TWO_FACTOR_AUTHENTICATION_KEY" => "your_two_factor_authentication_key_here"
+    ];
+
+    foreach ($keysToUpdate as $keyName => $placeholder) {
+        // Generate a random key of 64 characters. You can adjust this length.
+        $randomKey = bin2hex(random_bytes(32));
+
+        // Replace the placeholder value in the content with the random key
+        $content = str_replace("\"$keyName\" => \"$placeholder\"", "\"$keyName\" => \"$randomKey\"", $content);
+    }
+
+    // Save the updated content back to the file
+    file_put_contents($filePath, $content);
 }

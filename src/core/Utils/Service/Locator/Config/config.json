@@ -10,6 +10,13 @@
             "logs": "/logs",
             "backup": "/src/data/backup"
         },
+        "config": {
+            "app": "/app/config/app.php",
+            "bootstrap": "/app/config/bootstrap.php",
+            "constants": "/app/config/constants.php",
+            "database": "/app/config/database.php",
+            "keys": "/app/config/keys.php"
+        },
         "assets": {
             "audio": "/storage/assets/audio",
             "css": "/storage/assets/css",

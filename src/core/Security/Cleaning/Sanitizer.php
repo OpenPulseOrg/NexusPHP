@@ -2,112 +2,68 @@
 
 namespace Nxp\Core\Security\Cleaning;
 
-use PDO;
-
 class Sanitizer
 {
-    /**
-     * Sanitize input data by removing HTML tags and special characters.
-     *
-     * @param mixed $data The input data to sanitize.
-     * @param bool $allowHtmlTags Flag to allow certain HTML tags (optional).
-     * @return mixed The sanitized data.
-     */
-    public static function sanitizeInput($data, $allowHtmlTags = false)
+    // Sanitize a string
+    public static function sanitizeString($input)
     {
-        if (is_array($data)) {
-            return array_map([__CLASS__, 'sanitizeInput'], $data, array_fill(0, count($data), $allowHtmlTags));
-        } else {
-            // Use PHP's built-in functions to sanitize data
-            $data = trim($data);
-            $data = stripslashes($data);
-            if (!$allowHtmlTags) {
-                $data = htmlspecialchars($data, ENT_QUOTES, 'UTF-8');
-            }
-            return $data;
-        }
+        // Strip HTML tags and encode special characters
+        return htmlspecialchars(strip_tags($input), ENT_QUOTES, 'UTF-8');
     }
 
-    /**
-     * Sanitize input data for safe use in SQL queries.
-     *
-     * @param mixed $data The input data to sanitize.
-     * @param PDO $pdo The database connection object (optional).
-     * @return mixed The sanitized data.
-     */
-    public static function sanitizeSQL($data, $pdo = null)
+    // Sanitize an email address
+    public static function sanitizeEmail($input)
     {
-        if (is_array($data)) {
-            return array_map([__CLASS__, 'sanitizeSQL'], $data, array_fill(0, count($data), $pdo));
-        } else {
-            // If you are using PDO, it's recommended to use prepared statements instead of this method.
-            // However, this method can provide an additional layer of security.
-            if ($pdo instanceof PDO) {
-                $data = $pdo->quote($data);
-            } else {
-                // Use PHP's built-in functions to sanitize data for SQL queries
-                $data = addslashes($data);
-            }
-            return $data;
-        }
+        $sanitized = filter_var($input, FILTER_SANITIZE_EMAIL);
+        return filter_var($sanitized, FILTER_VALIDATE_EMAIL) ? $sanitized : false;
     }
 
-    /**
-     * Sanitize input data by removing all HTML tags.
-     *
-     * @param mixed $data The input data to strip HTML tags.
-     * @return mixed The data with HTML tags removed.
-     */
-    public static function stripHTMLTags($data)
+    // Sanitize a URL
+    public static function sanitizeURL($input)
     {
-        if (is_array($data)) {
-            return array_map([__CLASS__, 'stripHTMLTags'], $data);
-        } else {
-            // Use PHP's built-in function to remove HTML tags
-            return strip_tags($data);
-        }
+        return filter_var($input, FILTER_SANITIZE_URL);
     }
 
-    /**
-     * Sanitize input data by converting it to a safe filename.
-     *
-     * @param string $filename The input filename to sanitize.
-     * @return string The sanitized filename.
-     */
-    public static function sanitizeFilename($filename)
+    // Sanitize an integer
+    public static function sanitizeInt($input)
     {
-        // Replace all potentially dangerous characters in the filename
-        $filename = preg_replace('/[^a-zA-Z0-9\.\-_]/', '_', $filename);
-
-        // Remove any leading/trailing dots or dashes
-        $filename = trim($filename, '.-');
-
-        // Limit the filename length to avoid excessively long filenames
-        $maxFilenameLength = 255;
-        $filename = substr($filename, 0, $maxFilenameLength);
-
-        return $filename;
+        return filter_var($input, FILTER_SANITIZE_NUMBER_INT);
     }
 
-    /**
-     * Validate an email address.
-     *
-     * @param string $email The email address to validate.
-     * @return bool True if the email is valid, false otherwise.
-     */
-    public static function isValidEmail($email)
+    // Sanitize a float
+    public static function sanitizeFloat($input)
     {
-        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        return filter_var($input, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
     }
 
-    /**
-     * Validate a URL.
-     *
-     * @param string $url The URL to validate.
-     * @return bool True if the URL is valid, false otherwise.
-     */
-    public static function isValidURL($url)
+    // Sanitize SQL input to prevent SQL injection
+    // Note: Parameterized queries should always be used for the best protection against SQL injection.
+    public static function sanitizeSQL($input)
     {
-        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+        return addslashes($input);
+    }
+
+    // Sanitize a filename to remove any malicious characters
+    public static function sanitizeFilename($input)
+    {
+        return preg_replace('/[^a-zA-Z0-9._\-]/', '', $input);
+    }
+
+    // Sanitize input for JavaScript (useful for data that will be embedded in a script)
+    public static function sanitizeForJS($input)
+    {
+        return json_encode($input);
+    }
+
+    // Sanitize input that will be placed inside an HTML attribute
+    public static function sanitizeForAttribute($input)
+    {
+        return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+    }
+
+    // Sanitize input that will be used as a CSS value
+    public static function sanitizeForCSS($input)
+    {
+        return preg_replace('/[^a-zA-Z0-9.#\- ]/', '', $input);
     }
 }

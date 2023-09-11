@@ -200,13 +200,20 @@ class Generator
      */
     public static function generatePassword($length = 8)
     {
-        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!£$%&*';
         $password = '';
+        $charsLength = strlen($chars);
+
         for ($i = 0; $i < $length; $i++) {
-            $password .= $chars[mt_rand(0, strlen($chars) - 1)];
+            // Generate a random index within the bounds of $chars
+            $randomIndex = mt_rand(0, $charsLength - 1);
+            $encodedChar = htmlspecialchars($chars[$randomIndex], ENT_QUOTES, 'UTF-8');
+            $password .= $encodedChar;
         }
+
         return $password;
     }
+
 
     /**
      * Generate a random file extension from a list of available extensions.

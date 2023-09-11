@@ -44,4 +44,12 @@ return [
         'project_id' => '',
         'api_key' => '',
     ],
+
+    // redis configuration
+    'redis' => [
+        "use" => false,
+        "ip" => "127.0.0.1",
+        "port" => 6379,
+        "password" => ""
+    ]
 ];
